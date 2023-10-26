@@ -63,7 +63,7 @@ Future<http.Response> allmatches() async {
       HttpHeaders.contentTypeHeader: "application/json",
     });
 
-    
+
 
     if (response.statusCode == 200) {
       final responseBody = json.decode(response.body);
@@ -102,9 +102,6 @@ Future<http.Response> allmatches() async {
     throw Exception('Failed');
   }
 }
-
-
-
 
 
 
@@ -297,7 +294,7 @@ Future<http.Response> allmatches() async {
 
 
 
-      
+
 
       if (teamA != null && teamB != null) {
         final allTeams = [teamA, teamB];
@@ -327,9 +324,11 @@ Future<http.Response> allmatches() async {
 
       final price = "₹2 Lakhs"; // You may extract the price from the data.
       final time = match['date_start'];
+      final cid = match['competition']['cid'];
 
       if (country1Name != null && country2Name != null) {
         return MatchesList(
+          matchId: match['match_id'].toString(),
           titel: title,
           country1Name: country1Name,
           country2Name: country2Name,
@@ -337,6 +336,7 @@ Future<http.Response> allmatches() async {
           country2Flag: country2Flag,
           price: price,
           time: time,
+          cid: match['competition']['cid'].toString(),
         );
       }
     }
@@ -354,6 +354,29 @@ Future<http.Response> allmatches() async {
   }
 }
 
+// class MatchesList extends StatefulWidget {
+//   final String? titel;
+//   final String? country1Name;
+//   final String? country1Flag;
+//   final String? country2Name;
+//   final String? country2Flag;
+//   final String? time;
+//   final String? price;
+//
+//   const MatchesList({
+//     Key? key,
+//     this.titel,
+//     this.country1Name,
+//     this.country2Name,
+//     this.time,
+//     this.price,
+//     this.country1Flag,
+//     this.country2Flag,
+//   }) : super(key: key);
+//
+//   @override
+//   _MatchesListState createState() => _MatchesListState();
+// }
 class MatchesList extends StatefulWidget {
   final String? titel;
   final String? country1Name;
@@ -362,6 +385,8 @@ class MatchesList extends StatefulWidget {
   final String? country2Flag;
   final String? time;
   final String? price;
+  final String? matchId; // Add matchId
+  final String? cid; // Add competitionId
 
   const MatchesList({
     Key? key,
@@ -372,6 +397,8 @@ class MatchesList extends StatefulWidget {
     this.price,
     this.country1Flag,
     this.country2Flag,
+    this.matchId, // Include matchId in the constructor
+    this.cid, // Include competitionId in the constructor
   }) : super(key: key);
 
   @override
@@ -394,6 +421,9 @@ class _MatchesListState extends State<MatchesList> {
               price: widget.price,
               time: widget.time,
               titel: widget.titel,
+              cid: widget.cid,
+              matchId: widget.matchId,
+
             ),
           ),
         );
@@ -469,9 +499,32 @@ class _MatchesListState extends State<MatchesList> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
+                      //---------competation id
+                      Text(
+                        widget.cid!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: ConstanceData.SIZE_TITLE14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                       Expanded(child: SizedBox()),
                       Text(
                         widget.country2Name!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: ConstanceData.SIZE_TITLE14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+
+
+                      //----------Match ID:
+
+                      Text(
+                        widget.matchId!,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontFamily: 'Poppins',
@@ -492,6 +545,7 @@ class _MatchesListState extends State<MatchesList> {
                         height: 50,
                         child: Image.network(widget.country1Flag!),
                       ),
+
                       Container(
                         child: Text(
                           widget.time!,

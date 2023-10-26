@@ -23,6 +23,8 @@ class ContestsScreen extends StatefulWidget {
   final String? country2Flag;
   final String? time;
   final String? price;
+  final String? matchId; // Add matchId
+  final String? cid;
 
   const ContestsScreen({
     Key? key,
@@ -31,9 +33,10 @@ class ContestsScreen extends StatefulWidget {
     this.country1Flag,
     this.country2Name,
     this.country2Flag,
-   
     this.time,
     this.price,
+    this.matchId,
+    this.cid
   }) : super(key: key);
   @override
   _ContestsScreenState createState() => _ContestsScreenState();
@@ -136,6 +139,9 @@ class _ContestsScreenState extends State<ContestsScreen> {
                                   price: widget.price!,
                                   time: widget.time!,
                                   titel: widget.titel!,
+                                  cid: widget.cid,
+                                  matchId: widget.cid,
+
                                 )
                               ],
                             ),
@@ -175,7 +181,7 @@ class _ContestsScreenState extends State<ContestsScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => CreateTeamScreen(),
+                            builder: (context) => CreateTeamScreen(cid: widget.cid,matchID: widget.matchId),
                             fullscreenDialog: true,
                           ),
                         );
@@ -1729,6 +1735,8 @@ class TeamHadder extends StatefulWidget {
   final String? country2Flag;
   final String? time;
   final String? price;
+  final String? cid;
+  final String? matchId;
 
   const TeamHadder ({
     Key? key,
@@ -1739,6 +1747,8 @@ class TeamHadder extends StatefulWidget {
     this.price,
     this.country1Flag,
     this.country2Flag,
+    this.cid,
+    this.matchId,
   }) : super(key: key);
 
   @override
@@ -1761,6 +1771,8 @@ class _TeamHadderState extends State<TeamHadder > {
               price: widget.price,
               time: widget.time,
               titel: widget.titel,
+              matchId: widget.matchId,
+              cid: widget.cid,
             ),
           ),
         );
@@ -1793,6 +1805,31 @@ class _TeamHadderState extends State<TeamHadder > {
                         ),
                       ),
                       Expanded(child: SizedBox()),
+                      Text(
+                        widget.matchId!,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2, // Limit title to 2 lines
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 8,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).disabledColor,
+                        ),
+                      ),
+
+                      Text(
+                        widget.cid!,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2, // Limit title to 2 lines
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 8,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).disabledColor,
+                        ),
+                      ),
                       Image.asset(
                         ConstanceData.lineups,
                         height: 14,
@@ -1804,6 +1841,7 @@ class _TeamHadderState extends State<TeamHadder > {
                         Icons.notification_add_outlined,
                         size: 16,
                       ),
+
                     ],
                   ),
                   Divider(
@@ -1927,6 +1965,8 @@ class MatchHadder extends StatefulWidget {
   final String? country2Flag;
   final String? time;
   final String? price;
+  final String? cid;
+  final String? matchId;
 
   const MatchHadder({
     Key? key,
@@ -1937,6 +1977,8 @@ class MatchHadder extends StatefulWidget {
     this.country2Flag,
     this.time,
     this.price,
+    this.cid,
+    this.matchId,
   }) : super(key: key);
 
   @override
