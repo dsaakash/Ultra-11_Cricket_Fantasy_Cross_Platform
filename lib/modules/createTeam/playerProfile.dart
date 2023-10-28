@@ -476,7 +476,7 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen> {
                       ],
                     ),
                   ),
-                  // widget.isChoose! ? addToTeam() : SizedBox()
+                  widget.isChoose! ? addToTeam() : SizedBox()
                 ],
               ),
             ),
@@ -513,112 +513,112 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen> {
     return isMach;
   }
 
-  // Widget addToTeam() {
-  //   var isDisabled = false;
-  //   final validCredites = teamSelectionBloc.getTotalSelctedPlayerRating();
-  //   final is7Player = teamSelectionBloc.getMax7PlayesCount(widget.player!);
-  //   final isValid = teamSelectionBloc.isDisabled(widget.player!.pid!);
-  //   final is11Player = teamSelectionBloc.getSelectedPlayerCount();
-  //   final isValidMini = teamSelectionBloc.validMinErrorRequirement();
-  //
-  //   if ((100.0 - validCredites) < widget.player!.fantasyPlayerRating! && !widget.player!.isSelcted!) {
-  //     isDisabled = true;
-  //   }
-  //   if (is7Player == 7 && !widget.player!.isSelcted!) {
-  //     isDisabled = true;
-  //   }
-  //   if (is11Player == 11 && !widget.player!.isSelcted!) {
-  //     isDisabled = true;
-  //   }
-  //   if (isValid && !widget.player!.isSelcted!) {
-  //     isDisabled = true;
-  //   }
-  //   if (isValidMini != null && !widget.player!.isSelcted!) {
-  //     if (isValidMini != teamSelectionBloc.getTypeTextEnum(widget.player!.playingRole!)) {
-  //       if (!isValidMiniMach(teamSelectionBloc.getTypeTextEnum(widget.player!.playingRole!)!, teamSelectionBloc.validMinErrorRequirementList())) {
-  //         isDisabled = true;
-  //       }
-  //     }
-  //   }
-    // return Container(
-    //   height: 60,
-    //   padding: EdgeInsets.only(left: 50, right: 50, bottom: 20),
-    //   child: Row(
-    //     children: <Widget>[
-    //       Flexible(
-    //         child: Container(
-    //           decoration: new BoxDecoration(
-    //             color: Colors.white,
-    //             borderRadius: new BorderRadius.circular(4.0),
-    //             boxShadow: <BoxShadow>[
-    //               BoxShadow(color: AllCoustomTheme.getThemeData().primaryColor.withOpacity(0.5), offset: Offset(0, 1), blurRadius: 5.0),
-    //             ],
-    //           ),
-    //           child: Material(
-    //             color: Colors.transparent,
-    //             child: InkWell(
-    //               borderRadius: new BorderRadius.circular(4.0),
-    //               onTap: () async {
-    //                 if (widget.player!.isSelcted!) {
-    //                 } else {}
-    //                 if (!isDisabled) {
-    //                   teamSelectionBloc.setPlaySelect(widget.player!.pid!);
-    //                   Navigator.pop(context);
-    //                 } else {
-    //                   bool isatlest = false;
-    //                   bool isMinimum = false;
-    //                   if (isValidMini != null && !widget.player!.isSelcted!) {
-    //                     if (isValidMini != teamSelectionBloc.getTypeTextEnum(widget.player!.playingRole!)) {
-    //                       if (!isValidMiniMach(
-    //                           teamSelectionBloc.getTypeTextEnum(widget.player!.playingRole!)!, teamSelectionBloc.validMinErrorRequirementList())) {
-    //                         isatlest = true;
-    //                       }
-    //                     }
-    //                   }
-    //                   if (isValid && !widget.player!.isSelcted!) {
-    //                     isMinimum = true;
-    //                   }
-    //                   if (isatlest && isMinimum) {
-    //                     teamTapBloc.setType(AnimationType.atLeast);
-    //                   } else {
-    //                     if (isValidMini != null && !widget.player!.isSelcted!) {
-    //                       teamTapBloc.setType(AnimationType.atLeast);
-    //                     }
-    //                     if (isValid && !widget.player!.isSelcted!) {
-    //                       teamTapBloc.setType(AnimationType.isMinimum);
-    //                     }
-    //                   }
-    //                   if (is7Player == 7 && !widget.player!.isSelcted!) {
-    //                     teamTapBloc.setType(AnimationType.isSeven);
-    //                   }
-    //                   if ((100.0 - validCredites) < widget.player!.fantasyPlayerRating! && !widget.player!.isSelcted!) {
-    //                     teamTapBloc.setType(AnimationType.isCredits);
-    //                   }
-    //                   if (is11Player == 11 && !widget.player!.isSelcted!) {
-    //                     teamTapBloc.setType(AnimationType.isFull);
-    //                   }
-    //                   final text = getValideTxt(getTypeTextEnum(widget.player!.playingRole!)!);
-    //                   showInSnackBar(text);
-    //                 }
-    //               },
-    //               child: Center(
-    //                 child: Text(
-    //                   widget.player!.isSelcted! ? 'REMOVE FROME MY TEAM' : 'ADD TO MY TEAM',
-    //                   style: TextStyle(
-    //                     fontFamily: 'Poppins',
-    //                     fontWeight: FontWeight.bold,
-    //                     color: AllCoustomTheme.getThemeData().primaryColor,
-    //                     fontSize: ConstanceData.SIZE_TITLE12,
-    //                   ),
-    //                 ),
-    //               ),
-    //             ),
-    //           ),
-    //         ),
-    //       ),
-    //     ],
-    //   ),
-    // );
+  Widget addToTeam() {
+    var isDisabled = false;
+    final validCredites = teamSelectionBloc.getTotalSelctedPlayerRating();
+    final is7Player = teamSelectionBloc.getMax7PlayesCount(widget.player!);
+    final isValid = teamSelectionBloc.isDisabled(widget.player!.pid!);
+    final is11Player = teamSelectionBloc.getSelectedPlayerCount();
+    final isValidMini = teamSelectionBloc.validMinErrorRequirement();
+
+    if ((100.0 - validCredites) < widget.player!.fantasyPlayerRating! && !widget.player!.isSelcted!) {
+      isDisabled = true;
+    }
+    if (is7Player == 7 && !widget.player!.isSelcted!) {
+      isDisabled = true;
+    }
+    if (is11Player == 11 && !widget.player!.isSelcted!) {
+      isDisabled = true;
+    }
+    if (isValid && !widget.player!.isSelcted!) {
+      isDisabled = true;
+    }
+    if (isValidMini != null && !widget.player!.isSelcted!) {
+      if (isValidMini != teamSelectionBloc.getTypeTextEnum(widget.player!.playingRole!)) {
+        if (!isValidMiniMach(teamSelectionBloc.getTypeTextEnum(widget.player!.playingRole!)!, teamSelectionBloc.validMinErrorRequirementList())) {
+          isDisabled = true;
+        }
+      }
+    }
+    return Container(
+      height: 60,
+      padding: EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      child: Row(
+        children: <Widget>[
+          Flexible(
+            child: Container(
+              decoration: new BoxDecoration(
+                color: Colors.white,
+                borderRadius: new BorderRadius.circular(4.0),
+                boxShadow: <BoxShadow>[
+                  BoxShadow(color: AllCoustomTheme.getThemeData().primaryColor.withOpacity(0.5), offset: Offset(0, 1), blurRadius: 5.0),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: new BorderRadius.circular(4.0),
+                  onTap: () async {
+                    if (widget.player!.isSelcted!) {
+                    } else {}
+                    if (!isDisabled) {
+                      teamSelectionBloc.setPlaySelect(widget.player!.pid!);
+                      Navigator.pop(context);
+                    } else {
+                      bool isatlest = false;
+                      bool isMinimum = false;
+                      if (isValidMini != null && !widget.player!.isSelcted!) {
+                        if (isValidMini != teamSelectionBloc.getTypeTextEnum(widget.player!.playingRole!)) {
+                          if (!isValidMiniMach(
+                              teamSelectionBloc.getTypeTextEnum(widget.player!.playingRole!)!, teamSelectionBloc.validMinErrorRequirementList())) {
+                            isatlest = true;
+                          }
+                        }
+                      }
+                      if (isValid && !widget.player!.isSelcted!) {
+                        isMinimum = true;
+                      }
+                      if (isatlest && isMinimum) {
+                        teamTapBloc.setType(AnimationType.atLeast);
+                      } else {
+                        if (isValidMini != null && !widget.player!.isSelcted!) {
+                          teamTapBloc.setType(AnimationType.atLeast);
+                        }
+                        if (isValid && !widget.player!.isSelcted!) {
+                          teamTapBloc.setType(AnimationType.isMinimum);
+                        }
+                      }
+                      if (is7Player == 7 && !widget.player!.isSelcted!) {
+                        teamTapBloc.setType(AnimationType.isSeven);
+                      }
+                      if ((100.0 - validCredites) < widget.player!.fantasyPlayerRating! && !widget.player!.isSelcted!) {
+                        teamTapBloc.setType(AnimationType.isCredits);
+                      }
+                      if (is11Player == 11 && !widget.player!.isSelcted!) {
+                        teamTapBloc.setType(AnimationType.isFull);
+                      }
+                      final text = getValideTxt(getTypeTextEnum(widget.player!.playingRole!)!);
+                      showInSnackBar(text);
+                    }
+                  },
+                  child: Center(
+                    child: Text(
+                      widget.player!.isSelcted! ? 'REMOVE FROME MY TEAM' : 'ADD TO MY TEAM',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                        color: AllCoustomTheme.getThemeData().primaryColor,
+                        fontSize: ConstanceData.SIZE_TITLE12,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   TabTextType? getTypeTextEnum(String tabText) {
@@ -641,52 +641,52 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen> {
     }
   }
 
-  // String getValideTxt(TabTextType type) {
-  //   var animationType = teamTapBloc.animationType;
-  //   var txt = '';
-  //   if (animationType == AnimationType.isRegular) {
-  //     if (TabTextType.wk == type) {
-  //       txt = 'Pick 1 Wicket-Keeper';
-  //     } else if (TabTextType.bat == type) {
-  //       txt = 'Pick 3 - 5 Batsmen';
-  //     } else if (TabTextType.ar == type) {
-  //       txt = 'Pick 1 - 3 All-Rounders';
-  //     } else if (TabTextType.bowl == type) {
-  //       txt = 'Pick 3 - 5 Bowlers';
-  //     }
-  //   } else if (animationType == AnimationType.isMinimum) {
-  //     if (TabTextType.wk == type) {
-  //       txt = 'You can pick only 1 Wicket-Keeper.';
-  //     } else if (TabTextType.bat == type) {
-  //       txt = 'You can pick only 5 Batsmen.';
-  //     } else if (TabTextType.ar == type) {
-  //       txt = 'You can pick only 3 All-Rounders.';
-  //     } else if (TabTextType.bowl == type) {
-  //       txt = 'You can pick only 5 Bowlers.';
-  //     }
-  //   } else if (animationType == AnimationType.isFull) {
-  //     txt = '11 players selected, tap continue.';
-  //   } else if (animationType == AnimationType.isSeven) {
-  //     txt = 'You can pick only 7 from each team.';
-  //   } else if (animationType == AnimationType.isCredits) {
-  //     txt = 'Not enough creadits to pick this player.';
-  //   } else if (animationType == AnimationType.atLeast) {
-  //     final isValidMini = teamSelectionBloc.validMinErrorRequirement();
-  //     if (isValidMini != null) {
-  //       if (TabTextType.wk == isValidMini) {
-  //         txt = 'You must pick at least 1 Wicket-Keeper.';
-  //       } else if (TabTextType.bat == isValidMini) {
-  //         txt = 'You must pick at least 3 Batsmen.';
-  //       } else if (TabTextType.ar == isValidMini) {
-  //         txt = 'You must pick at least 1 All-Rounders.';
-  //       } else if (TabTextType.bowl == isValidMini) {
-  //         txt = 'You must pick at least 3 Bowlers.';
-  //       }
-  //     }
-  //   }
-  //   return txt;
-  // }
-//}
+  String getValideTxt(TabTextType type) {
+    var animationType = teamTapBloc.animationType;
+    var txt = '';
+    if (animationType == AnimationType.isRegular) {
+      if (TabTextType.wk == type) {
+        txt = 'Pick 1 Wicket-Keeper';
+      } else if (TabTextType.bat == type) {
+        txt = 'Pick 3 - 5 Batsmen';
+      } else if (TabTextType.ar == type) {
+        txt = 'Pick 1 - 3 All-Rounders';
+      } else if (TabTextType.bowl == type) {
+        txt = 'Pick 3 - 5 Bowlers';
+      }
+    } else if (animationType == AnimationType.isMinimum) {
+      if (TabTextType.wk == type) {
+        txt = 'You can pick only 1 Wicket-Keeper.';
+      } else if (TabTextType.bat == type) {
+        txt = 'You can pick only 5 Batsmen.';
+      } else if (TabTextType.ar == type) {
+        txt = 'You can pick only 3 All-Rounders.';
+      } else if (TabTextType.bowl == type) {
+        txt = 'You can pick only 5 Bowlers.';
+      }
+    } else if (animationType == AnimationType.isFull) {
+      txt = '11 players selected, tap continue.';
+    } else if (animationType == AnimationType.isSeven) {
+      txt = 'You can pick only 7 from each team.';
+    } else if (animationType == AnimationType.isCredits) {
+      txt = 'Not enough creadits to pick this player.';
+    } else if (animationType == AnimationType.atLeast) {
+      final isValidMini = teamSelectionBloc.validMinErrorRequirement();
+      if (isValidMini != null) {
+        if (TabTextType.wk == isValidMini) {
+          txt = 'You must pick at least 1 Wicket-Keeper.';
+        } else if (TabTextType.bat == isValidMini) {
+          txt = 'You must pick at least 3 Batsmen.';
+        } else if (TabTextType.ar == isValidMini) {
+          txt = 'You must pick at least 1 All-Rounders.';
+        } else if (TabTextType.bowl == isValidMini) {
+          txt = 'You must pick at least 3 Bowlers.';
+        }
+      }
+    }
+    return txt;
+  }
+}
 
 class PlayerslistUI extends StatelessWidget {
   final PlayerData? playerMachImfoList;

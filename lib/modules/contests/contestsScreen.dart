@@ -23,7 +23,7 @@ class ContestsScreen extends StatefulWidget {
   final String? country2Flag;
   final String? time;
   final String? price;
-  final String? matchId; // Add matchId
+  final String? matchId;
   final String? cid;
 
   const ContestsScreen({
@@ -33,10 +33,9 @@ class ContestsScreen extends StatefulWidget {
     this.country1Flag,
     this.country2Name,
     this.country2Flag,
+   
     this.time,
-    this.price,
-    this.matchId,
-    this.cid
+    this.price, this.matchId, this.cid,
   }) : super(key: key);
   @override
   _ContestsScreenState createState() => _ContestsScreenState();
@@ -139,9 +138,6 @@ class _ContestsScreenState extends State<ContestsScreen> {
                                   price: widget.price!,
                                   time: widget.time!,
                                   titel: widget.titel!,
-                                  cid: widget.cid,
-                                  matchId: widget.cid,
-
                                 )
                               ],
                             ),
@@ -181,7 +177,7 @@ class _ContestsScreenState extends State<ContestsScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => CreateTeamScreen(cid: widget.cid,matchID: widget.matchId),
+                            builder: (context) => CreateTeamScreen(),
                             fullscreenDialog: true,
                           ),
                         );
@@ -1727,236 +1723,6 @@ class _ContestsScreenState extends State<ContestsScreen> {
   }
 }
 
-class TeamHadder extends StatefulWidget {
-  final String? titel;
-  final String? country1Name;
-  final String? country1Flag;
-  final String? country2Name;
-  final String? country2Flag;
-  final String? time;
-  final String? price;
-  final String? cid;
-  final String? matchId;
-
-  const TeamHadder ({
-    Key? key,
-    this.titel,
-    this.country1Name,
-    this.country2Name,
-    this.time,
-    this.price,
-    this.country1Flag,
-    this.country2Flag,
-    this.cid,
-    this.matchId,
-  }) : super(key: key);
-
-  @override
-  _TeamHadderState createState() => _TeamHadderState();
-}
-
-class _TeamHadderState extends State<TeamHadder > {
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ContestsScreen(
-              country1Flag: widget.country1Flag,
-              country2Flag: widget.country2Flag,
-              country1Name: widget.country1Name,
-              country2Name: widget.country2Name,
-              price: widget.price,
-              time: widget.time,
-              titel: widget.titel,
-              matchId: widget.matchId,
-              cid: widget.cid,
-            ),
-          ),
-        );
-      },
-     
-      child: Card(
-        elevation: 6,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        margin: EdgeInsets.all(8),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        widget.titel!,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 2, // Limit title to 2 lines
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 8,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).disabledColor,
-                        ),
-                      ),
-                      Expanded(child: SizedBox()),
-                      Text(
-                        widget.matchId!,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 2, // Limit title to 2 lines
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 8,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).disabledColor,
-                        ),
-                      ),
-
-                      Text(
-                        widget.cid!,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 2, // Limit title to 2 lines
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 8,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).disabledColor,
-                        ),
-                      ),
-                      Image.asset(
-                        ConstanceData.lineups,
-                        height: 14,
-                      ),
-                      SizedBox(
-                        width: 8,
-                      ),
-                      Icon(
-                        Icons.notification_add_outlined,
-                        size: 16,
-                      ),
-
-                    ],
-                  ),
-                  Divider(
-                    thickness: 1.3,
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        widget.country1Name!,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: ConstanceData.SIZE_TITLE14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Expanded(child: SizedBox()),
-                      Text(
-                        widget.country2Name!,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: ConstanceData.SIZE_TITLE14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        width: 50,
-                        height: 50,
-                        child: Image.network(widget.country1Flag!),
-                      ),
-                      Container(
-                        child: Text(
-                          widget.time!,
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: ConstanceData.SIZE_TITLE12,
-                            color: Colors.red,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 50,
-                        height: 50,
-                        child: Image.network(widget.country2Flag!),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: AllCoustomTheme.isLight ? HexColor("#f5f5f5") : Theme.of(context).disabledColor.withOpacity(0.1),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(8),
-                  bottomRight: Radius.circular(8),
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.green),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 3, left: 3),
-                        child: Text(
-                          "Mega",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: ConstanceData.SIZE_TITLE12,
-                            color: Colors.green,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    // Text(
-                    //   widget.price!,
-                    //   textAlign: TextAlign.center,
-                    //   style: TextStyle(
-                    //     fontFamily: 'Poppins',
-                    //     fontSize: ConstanceData.SIZE_TITLE12,
-                    //   ),
-                    // ),
-                    Expanded(child: SizedBox()),
-                    Image.asset(
-                      ConstanceData.tv,
-                      height: 18,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class MatchHadder extends StatefulWidget {
   final String? titel;
   final String? country1Name;
@@ -1965,8 +1731,6 @@ class MatchHadder extends StatefulWidget {
   final String? country2Flag;
   final String? time;
   final String? price;
-  final String? cid;
-  final String? matchId;
 
   const MatchHadder({
     Key? key,
@@ -1977,8 +1741,6 @@ class MatchHadder extends StatefulWidget {
     this.country2Flag,
     this.time,
     this.price,
-    this.cid,
-    this.matchId,
   }) : super(key: key);
 
   @override

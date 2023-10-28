@@ -643,8 +643,8 @@ class _JoinTeamViewState extends State<JoinTeamView> {
   var teamA = 0;
   var teamB = 0;
   List<Players> players = <Players>[];
-  Players captun = new Players();
-  Players wcaptun = new Players();
+  Players captun = new Players(1);
+  Players wcaptun = new Players(1);
 
   @override
   void initState() {
