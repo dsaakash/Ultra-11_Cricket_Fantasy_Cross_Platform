@@ -3,10 +3,12 @@
 
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
-//import 'package:tempalteflutter/api/apiProvider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tempalteflutter/api/apiProvider.dart';
 import 'package:tempalteflutter/bloc/teamSelectionBloc.dart';
 import 'package:tempalteflutter/bloc/teamTapBloc.dart';
 import 'package:tempalteflutter/constance/constance.dart';
@@ -20,6 +22,7 @@ import 'package:tempalteflutter/modules/createTeam/teamPreview.dart';
 import 'package:tempalteflutter/utils/avatarImage.dart';
 import 'package:tempalteflutter/models/teamResponseData.dart' as team;
 import 'package:http/http.dart' as http;
+import 'package:tempalteflutter/validator/validator.dart';
 
 enum CreateTeamType { createTeam, editTeam, copyTeam }
 
@@ -30,12 +33,8 @@ class CreateTeamScreen extends StatefulWidget {
   final ShedualData? shedualData;
   final CreateTeamType? createTeamtype;
   final team.TeamData? createdTeamData;
-  final String? cid;
-  final String? matchID;
 
-
-
-  const CreateTeamScreen({Key? key, this.shedualData, this.createTeamtype = CreateTeamType.createTeam, this.createdTeamData, this.cid, this.matchID}) : super(key: key);
+  const CreateTeamScreen({Key? key, this.shedualData, this.createTeamtype = CreateTeamType.createTeam, this.createdTeamData}) : super(key: key);
   @override
   _CreateTeamScreenState createState() => _CreateTeamScreenState();
 }
@@ -49,7 +48,7 @@ String teamBLogoUrl = '';
 String teamAName = '';
 
 
-
+ 
 
 class _CreateTeamScreenState extends State<CreateTeamScreen> with SingleTickerProviderStateMixin {
   late TabController tabController;
@@ -59,6 +58,7 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> with SingleTickerPr
 
   @override
   void initState() {
+    myteam();
     teamSelectionBloc.cleanList();
     teamTapBloc.cleanList();
     tabController = TabController(length: 4, vsync: this, initialIndex: 0);
@@ -70,25 +70,34 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> with SingleTickerPr
     });
 
     //fetchTeamData();
-  allmatches();
-    fetchPlayerNamesAndSquadData();
-   //getSquadTeamData();
+  getsquaddata();
+   getSquadTeamData();
     super.initState();
   }
+  String? cid;
+  String? matchId;
+myteam() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+
+// Retrieve the stored value
+ cid = prefs.getString('cid');
+ print(cid);
+ matchId = prefs.getString('matchId');
+ print(matchId);
+}
 
 
+//getsquaddata()
+  //    ALl matches APi 
 
-
-  //    ALl matches APi
-
-Future<http.Response> allmatches() async {
+Future<http.Response> getsquaddata() async {
   try {
     setState(() {
       isLoginProsses = true; // Show the loader
     });
 
     final url =
-        "https://rest.entitysport.com/v2/matches/?status=1&token=4c5b78057cd282704f2a9dd8ea556ee2";
+      "https://rest.entitysport.com/v2/competitions/$cid/squads/$matchId?token=4c5b78057cd282704f2a9dd8ea556ee2";
 
     // Declare formattedDate here
 
@@ -99,9 +108,9 @@ Future<http.Response> allmatches() async {
     if (response.statusCode == 200) {
       final responseBody = json.decode(response.body);
       if (responseBody.containsKey('response') &&
-          responseBody['response'].containsKey('items')) {
+          responseBody['response'].containsKey('squads')) {
         setState(() {
-          responseData = responseBody['response']['items'];
+          responseData = responseBody['response']['squads'];
           isLoginProsses = false;
         });
 
@@ -110,10 +119,10 @@ Future<http.Response> allmatches() async {
 
         for (var match in responseData) {
           String dateStart = match['date_start'];
-          String teamALogoUrl = match['teama']['logo_url'];
-          String teamAShortName = match['teama']['short_name'];
-          String teamBLogoUrl = match['teamb']['logo_url'];
-          String teamBShortName = match['teamb']['short_name'];
+          String teamALogoUrl = match['team'][0]['logo_url'];
+          String teamAShortName = match['team'][0]['abbr'];
+          String teamBLogoUrl = match['team'][1]['logo_url'];
+          String teamBShortName = match['team'][1]['abbr'];
 
           // You can use the extracted information as needed.
           print('Date Start: $dateStart');
@@ -163,125 +172,59 @@ Future<http.Response> allmatches() async {
   }
 }
 
-  // Future<List<String>> fetchPlayerNames() async {
-  //   final String apiUrl = 'https://rest.entitysport.com/v2/competitions/128307/squads/70577?token=4c5b78057cd282704f2a9dd8ea556ee2';
-  //
-  //   try {
-  //     final response = await http.get(Uri.parse(apiUrl));
-  //
-  //     if (response.statusCode == 200) {
-  //       final Map<String, dynamic> jsonData = json.decode(response.body);
-  //       final List<dynamic> squads = jsonData['response']['squads'];
-  //
-  //       // Extract player names from all squads
-  //       List<String> playerNames = [];
-  //
-  //       for (var squad in squads) {
-  //         final List<dynamic> players = squad['last_match_played'];
-  //
-  //         for (var player in players) {
-  //           String playerName = player['title'];
-  //           playerNames.add(playerName);
-  //         }
-  //       }
-  //
-  //       return playerNames;
-  //     } else {
-  //       throw Exception('Failed to load squad information');
-  //     }
-  //   } catch (error) {
-  //     throw Exception('Error: $error');
-  //   }
-  // }
 
-  Future<List<Map<String, dynamic>>> fetchPlayerNamesAndSquadData() async {
-    final String apiUrl = 'https://rest.entitysport.com/v2/competitions/128307/squads/70577?token=4c5b78057cd282704f2a9dd8ea556ee2';
 
-    try {
-      final response = await http.get(Uri.parse(apiUrl));
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonData = json.decode(response.body);
-        final List<dynamic> squads = jsonData['response']['squads'];
+ void getSquadTeamData() async {
+    setState(() {
+      isLoginProsses = true;
+    });
+    final data = await ApiProvider().getTeamData();
 
-        List<Map<String, dynamic>> squadDataList = [];
+    if (data != null && data.playerList!.length > 0) {
+      allPlayerList.clear();
+      allPlayerList = data.playerList!;
 
-        for (var squad in squads) {
-          final List<dynamic> players = squad['last_match_played'];
-
-          List<String> playerNames = players.map((player) => player['title'].toString()).toList();
-
-          Map<String, dynamic> squadData = {
-            'team_id': squad['team_id'],
-            'title': squad['title'],
-            'players': playerNames,
-          };
-
-          squadDataList.add(squadData);
-        }
-
-        return squadDataList;
-      } else {
-        throw Exception('Failed to load squad information');
+      teamSelectionBloc = TeamSelectionBloc(TeamSelectionBlocState.initial());
+      teamTapBloc = TeamTapBloc(TeamTapBlocState.initial());
+      if (widget.createTeamtype == CreateTeamType.createTeam) {
+        teamSelectionBloc.onListChanges(allPlayerList);
+      } else if (widget.createTeamtype == CreateTeamType.editTeam && widget.createdTeamData != null) {
+        allPlayerList.forEach((p) {
+          if (p.title!.toLowerCase() == widget.createdTeamData!.captun!.toLowerCase()) {
+            p.isSelcted = true;
+            p.isC = true;
+          }
+          if (p.title!.toLowerCase() == widget.createdTeamData!.wiseCaptun!.toLowerCase()) {
+            p.isVC = true;
+            p.isSelcted = true;
+          }
+          if (isMach(p.title!)) {
+            p.isSelcted = true;
+          }
+        });
+        teamSelectionBloc.onListChanges(allPlayerList);
+      } else if (widget.createTeamtype == CreateTeamType.copyTeam && widget.createdTeamData != null) {
+        allPlayerList.forEach((p) {
+          if (p.title!.toLowerCase() == widget.createdTeamData!.captun!.toLowerCase()) {
+            p.isSelcted = true;
+            p.isC = true;
+          }
+          if (p.title!.toLowerCase() == widget.createdTeamData!.wiseCaptun!.toLowerCase()) {
+            p.isVC = true;
+            p.isSelcted = true;
+          }
+          if (isMach(p.title!)) {
+            p.isSelcted = true;
+          }
+        });
+        teamSelectionBloc.onListChanges(allPlayerList);
       }
-    } catch (error) {
-      throw Exception('Error: $error');
     }
+    setState(() {
+      isLoginProsses = false;
+    });
   }
-
-
-
-
-  // void getSquadTeamData() async {
-  //   setState(() {
-  //     isLoginProsses = true;
-  //   });
-  //   final data = await ApiProvider().getTeamData();
-  //
-  //   if (data != null && data.playerList!.length > 0) {
-  //     allPlayerList.clear();
-  //     allPlayerList = data.playerList!;
-  //
-  //     teamSelectionBloc = TeamSelectionBloc(TeamSelectionBlocState.initial());
-  //     teamTapBloc = TeamTapBloc(TeamTapBlocState.initial());
-  //     if (widget.createTeamtype == CreateTeamType.createTeam) {
-  //       teamSelectionBloc.onListChanges(allPlayerList);
-  //     } else if (widget.createTeamtype == CreateTeamType.editTeam && widget.createdTeamData != null) {
-  //       allPlayerList.forEach((p) {
-  //         if (p.title!.toLowerCase() == widget.createdTeamData!.captun!.toLowerCase()) {
-  //           p.isSelcted = true;
-  //           p.isC = true;
-  //         }
-  //         if (p.title!.toLowerCase() == widget.createdTeamData!.wiseCaptun!.toLowerCase()) {
-  //           p.isVC = true;
-  //           p.isSelcted = true;
-  //         }
-  //         if (isMach(p.title!)) {
-  //           p.isSelcted = true;
-  //         }
-  //       });
-  //       teamSelectionBloc.onListChanges(allPlayerList);
-  //     } else if (widget.createTeamtype == CreateTeamType.copyTeam && widget.createdTeamData != null) {
-  //       allPlayerList.forEach((p) {
-  //         if (p.title!.toLowerCase() == widget.createdTeamData!.captun!.toLowerCase()) {
-  //           p.isSelcted = true;
-  //           p.isC = true;
-  //         }
-  //         if (p.title!.toLowerCase() == widget.createdTeamData!.wiseCaptun!.toLowerCase()) {
-  //           p.isVC = true;
-  //           p.isSelcted = true;
-  //         }
-  //         if (isMach(p.title!)) {
-  //           p.isSelcted = true;
-  //         }
-  //       });
-  //       teamSelectionBloc.onListChanges(allPlayerList);
-  //     }
-  //   }
-  //   setState(() {
-  //     isLoginProsses = false;
-  //   });
-  // }
 
   bool isMach(String name) {
     bool isMach = false;
@@ -299,7 +242,7 @@ Future<http.Response> allmatches() async {
     return isMach;
   }
 
-
+  
 
   @override
   Widget build(BuildContext context) {
@@ -352,40 +295,48 @@ Future<http.Response> allmatches() async {
                                   ),
 
 
-                                  // Expanded(
-                                  //   child: Center(
-                                  //     child: Text(
-                                  //       'Tue, 9 Aug',
-                                  //       style: TextStyle(
-                                  //         fontFamily: 'Poppins',
-                                  //         fontSize: 24,
-                                  //         fontWeight: FontWeight.w500,
-                                  //         color: Colors.white,
-                                  //       ),
-                                  //     ),
-                                  //   ),
-                                  // ),
-                                 // Date will be called from  api
-                                 //  Expanded(
-                                 //      child: Center(
-                                 //        child: Text(
-                                 //          formattedDate, // Use the formatted date here
-                                 //          style: TextStyle(
-                                 //            fontFamily: 'Poppins',
-                                 //            fontSize: 24,
-                                 //            fontWeight: FontWeight.w500,
-                                 //            color: Colors.white,
-                                 //          ),
-                                 //        ),
-                                 //      ),
-                                 //    ),
-                                 //
-                                 //  CreateHeader(
-                                 //
-                                 //
-                                 //    cid: widget.cid!,
-                                 //    matchId: widget.matchID,
-                                 //  ),
+                                  Expanded(
+                                    child: Center(
+                                      child: Text(
+                                        matchId!,
+                                        style: TextStyle(
+                                          fontFamily: 'Poppins',
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  
+                                  Expanded(
+                                    child: Center(
+                                      child: Text(
+                                        cid!,
+                                        style: TextStyle(
+                                          fontFamily: 'Poppins',
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  
+                                 // Date will be called from  api 
+                                  Expanded(
+                                      child: Center(
+                                        child: Text(
+                                          formattedDate, // Use the formatted date here
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   Container(
                                     width: AppBar().preferredSize.height,
                                   )
@@ -496,8 +447,8 @@ Future<http.Response> allmatches() async {
                                                     //   ),
                                                     // ),
 
-
-
+                                                  
+    
                                                     // Container(
                                                     //   child: BlocBuilder(
                                                     //     bloc: teamSelectionBloc,
@@ -906,7 +857,7 @@ class TeamSelectionList extends StatefulWidget {
   @override
   _TeamSelectionListState createState() => _TeamSelectionListState();
 }
-/*
+
 
 class CreateHeader extends StatefulWidget {
   final String? titel;
@@ -915,10 +866,7 @@ class CreateHeader extends StatefulWidget {
   final String? country2Name;
   final String? country2Flag;
   final String? time;
-  final String? cid;
-  final String? matchId;
-  final String? price;
-
+  
 
   const CreateHeader({
     Key? key,
@@ -928,10 +876,7 @@ class CreateHeader extends StatefulWidget {
     this.country2Name,
     this.country2Flag,
     this.time,
-    this.cid,
-    this.matchId,
-    this.price
-
+  
   }) : super(key: key);
 
   @override
@@ -992,39 +937,7 @@ class _CreateHeader extends State<CreateHeader> {
                       fontSize: ConstanceData.SIZE_TITLE12,
                     ),
                   ),
-
                 ),
-
-                Container(
-                  padding: EdgeInsets.only(left: 8, right: 8),
-                  child: Text(
-                    widget.cid!,
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
-                      color: AllCoustomTheme.getThemeData().primaryColor,
-                      fontSize: ConstanceData.SIZE_TITLE12,
-                    ),
-                  ),
-
-                ),
-
-                Container(
-                  padding: EdgeInsets.only(left: 8, right: 8),
-                  child: Text(
-                    widget.matchId!,
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
-                      color: AllCoustomTheme.getThemeData().primaryColor,
-                      fontSize: ConstanceData.SIZE_TITLE12,
-                    ),
-                  ),
-
-                ),
-
                 Container(
                   width: 24,
                   height: 24,
@@ -1058,104 +971,21 @@ class _CreateHeader extends State<CreateHeader> {
   }
 }
 
-*/
+
 
 
 class _TeamSelectionListState extends State<TeamSelectionList> {
   var messageList = <String>[];
   var animationType = AnimationType.isRegular;
 
-
-  Future<http.Response> allmatches() async {
-  try {
-    setState(() {
-     // isLoginProsses = true; // Show the loader
-    });
-
-    final url =
-        "https://rest.entitysport.com/v2/matches/?status=1&token=4c5b78057cd282704f2a9dd8ea556ee2";
-
-    // Declare formattedDate here
-
-    final response = await http.get(Uri.parse(url), headers: {
-      HttpHeaders.contentTypeHeader: "application/json",
-    });
-
-    if (response.statusCode == 200) {
-      final responseBody = json.decode(response.body);
-      if (responseBody.containsKey('response') &&
-          responseBody['response'].containsKey('items')) {
-        setState(() {
-          responseData = responseBody['response']['items'];
-        //  isLoginProsses = false;
-        });
-
-        // Extract the required information and store it in a list
-        List<Map<String, dynamic>> matchInfoList = [];
-
-        for (var match in responseData) {
-          String dateStart = match['date_start'];
-          String teamALogoUrl = match['teama']['logo_url'];
-          String teamAShortName = match['teama']['short_name'];
-          String teamBLogoUrl = match['teamb']['logo_url'];
-          String teamBShortName = match['teamb']['short_name'];
-
-          // You can use the extracted information as needed.
-          print('Date Start: $dateStart');
-          print('Team A Logo URL: $teamALogoUrl');
-          print('Team A Short Name: $teamAShortName');
-          print('Team B Logo URL: $teamBLogoUrl');
-          print('Team B Short Name: $teamBShortName');
-
-          // Store the information in a dictionary and add it to the list
-          matchInfoList.add({
-            'Date Start': dateStart,
-            'Team A Logo URL': teamALogoUrl,
-            'Team A Short Name': teamAShortName,
-            'Team B Logo URL': teamBLogoUrl,
-            'Team B Short Name': teamBShortName,
-          });
-        }
-
-        // You can use matchInfoList as needed for displaying or further processing the data.
-
-        return response;
-      } else {
-        print('No response available in the JSON.');
-      }
-
-      setState(() {
-        responseData = responseBody['items'];
-        print(responseData);
-       // isLoginProsses = false;
-      });
-
-      return response;
-    } else {
-      // Handle errors here
-      setState(() {
-       // isLoginProsses = false;
-      });
-      throw Exception('Failed');
-    }
-  } catch (error) {
-    // Handle exceptions or errors here
-    setState(() {
-     // isLoginProsses = false;
-    });
-    print('Error: $error');
-    throw Exception('Failed');
-  }
-}
-
   @override
   void initState() {
     teamTapBloc.setType(AnimationType.isRegular);
 
 
-    allmatches();
+   // allmatches();
 
-
+    
 
     super.initState();
   }
@@ -1371,13 +1201,13 @@ class PlayerslistUI extends StatelessWidget {
   }
 
 
+  
 
 
+  
 
 
-
-
-
+  
 
   @override
   Widget build(BuildContext context) {
@@ -1641,4 +1471,3 @@ class PlayerslistUI extends StatelessWidget {
   }
 
 }
-

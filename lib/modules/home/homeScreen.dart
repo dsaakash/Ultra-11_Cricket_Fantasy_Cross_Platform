@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:tempalteflutter/api/apiProvider.dart';
 import 'package:tempalteflutter/constance/constance.dart';
 // import 'package:tempalteflutter/constance/sharedPreferences.dart';
@@ -409,7 +410,15 @@ class _MatchesListState extends State<MatchesList> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
+      onTap: () async {
+        print(widget.cid);
+        print(widget.matchId);
+        // Get an instance of SharedPreferences
+SharedPreferences prefs = await SharedPreferences.getInstance();
+
+// Store a key-value pair in SharedPreferences
+prefs.setString('cid', widget.cid!);
+prefs.setString('matchId', widget.matchId!);
         Navigator.push(
           context,
           MaterialPageRoute(
