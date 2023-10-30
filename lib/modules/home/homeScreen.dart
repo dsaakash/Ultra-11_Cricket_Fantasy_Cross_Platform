@@ -421,6 +421,7 @@ prefs.setString('cid', widget.cid!);
 prefs.setString('matchId', widget.matchId!);
 prefs.setString('country1Flag',widget.country1Flag!);
 prefs.setString('country1Name',widget.country1Name!);
+prefs.setString('time', widget.time!);
 
 
 

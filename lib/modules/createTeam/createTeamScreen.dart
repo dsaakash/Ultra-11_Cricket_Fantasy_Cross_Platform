@@ -52,12 +52,14 @@ String? country1Flag;
 String? country2Flag;
 String? country1Name;
 String? country2Name;
+String? time;
 
  class Player {
   final String name;
   final String battingStyle;
   final String nationality;
   final String thumbUrl;
+  
 
   Player({
     required this.name,
@@ -107,6 +109,7 @@ myteam() async {
  country1Name = prefs.getString('country1Name');
  country2Flag = prefs.getString('country2Flag');
  country2Name = prefs.getString('country2Name');
+ time = prefs.getString('time');
  
 
  getAndProcessSquadData(cid,matchId);
@@ -210,95 +213,37 @@ myteam() async {
 
 
 
-// void getSquadTeamData() async {
-//   try {
-//     setState(() {
-//       isLoginProsses = true;
-//     });
-
-//     // Call your API to get squad team data
-//     await getAndProcessSquadData(cid, matchId); // Replace cid and matchId with actual values
-
-//     if (responseData.isNotEmpty) {
-//       allPlayerList.clear();
-
-//       // Iterate through the responseData and extract player information
-//       for (var squadData in responseData) {
-//         if (squadData.containsKey('Players')) {
-//           List<dynamic> playersList = squadData['Players'];
-//           for (var playerData in playersList) {
-//             Player player = Player(
-//               name: playerData['title'],
-//               battingStyle: playerData['batting_style'],
-//               nationality: playerData['nationality'],
-//               thumbUrl: playerData['thumb_url'],
-//             );
-
-//             allPlayerList.add(player as Players);
-//           }
-//         }
-//       }
-
-//       // Handle the rest of your logic here
-//       teamSelectionBloc = TeamSelectionBloc(TeamSelectionBlocState.initial());
-//       teamTapBloc = TeamTapBloc(TeamTapBlocState.initial());
-//       if (widget.createTeamtype == CreateTeamType.createTeam) {
-//         teamSelectionBloc.onListChanges(allPlayerList);
-//       } else if (widget.createTeamtype == CreateTeamType.editTeam && widget.createdTeamData != null) {
-//         allPlayerList.forEach((p) {
-//           if (p.title!.toLowerCase() == widget.createdTeamData!.captun!.toLowerCase()) {
-//             p.isSelcted = true;
-//             p.isC = true;
-//           }
-//           if (p.title!.toLowerCase() == widget.createdTeamData!.wiseCaptun!.toLowerCase()) {
-//             p.isVC = true;
-//             p.isSelcted = true;
-//           }
-//           if (isMach(p.title!)) {
-//             p.isSelcted = true;
-//           }
-//         });
-//         teamSelectionBloc.onListChanges(allPlayerList);
-//       } else if (widget.createTeamtype == CreateTeamType.copyTeam && widget.createdTeamData != null) {
-//         allPlayerList.forEach((p) {
-//           if (p.title!.toLowerCase() == widget.createdTeamData!.captun!.toLowerCase()) {
-//             p.isSelcted = true;
-//             p.isC = true;
-//           }
-//           if (p.title!.toLowerCase() == widget.createdTeamData!.wiseCaptun!.toLowerCase()) {
-//             p.isVC = true;
-//             p.isSelcted = true;
-//           }
-//           if (isMach(p.title!)) {
-//             p.isSelcted = true;
-//           }
-//         });
-//         teamSelectionBloc.onListChanges(allPlayerList);
-//       }
-//     }
-
-//     setState(() {
-//       isLoginProsses = false;
-//     });
-//   } catch (error) {
-//     setState(() {
-//       isLoginProsses = false;
-//     });
-//     print('Error: $error');
-//   }
-// }
-
-
 void getSquadTeamData() async {
+  try {
     setState(() {
       isLoginProsses = true;
     });
-    final data = await ApiProvider().getTeamData();
 
-    if (data != null && data.playerList!.length > 0) {
+    // Call your API to get squad team data
+    await getAndProcessSquadData(cid, matchId); // Replace cid and matchId with actual values
+
+    if (responseData.isNotEmpty) {
       allPlayerList.clear();
-      allPlayerList = data.playerList!;
 
+      // Iterate through the responseData and extract player information
+      for (var squadData in responseData) {
+        if (squadData.containsKey('Players')) {
+          List<dynamic> playersList = squadData['Players'];
+          for (var playerData in playersList) {
+            Player player = Player(
+              name: playerData['title'],
+              battingStyle: playerData['batting_style'],
+              nationality: playerData['nationality'],
+              thumbUrl: playerData['thumb_url'],
+              // playing_role:playerData['playing_role']
+            );
+
+            allPlayerList.add(player as Players);
+          }
+        }
+      }
+
+      // Handle the rest of your logic here
       teamSelectionBloc = TeamSelectionBloc(TeamSelectionBlocState.initial());
       teamTapBloc = TeamTapBloc(TeamTapBlocState.initial());
       if (widget.createTeamtype == CreateTeamType.createTeam) {
@@ -335,10 +280,69 @@ void getSquadTeamData() async {
         teamSelectionBloc.onListChanges(allPlayerList);
       }
     }
+
     setState(() {
       isLoginProsses = false;
     });
+  } catch (error) {
+    setState(() {
+      isLoginProsses = false;
+    });
+    print('Error: $error');
   }
+}
+
+
+// void getSquadTeamData() async {
+//     setState(() {
+//       isLoginProsses = true;
+//     });
+//     final data = await ApiProvider().getTeamData();
+
+//     if (data != null && data.playerList!.length > 0) {
+//       allPlayerList.clear();
+//       allPlayerList = data.playerList!;
+
+//       teamSelectionBloc = TeamSelectionBloc(TeamSelectionBlocState.initial());
+//       teamTapBloc = TeamTapBloc(TeamTapBlocState.initial());
+//       if (widget.createTeamtype == CreateTeamType.createTeam) {
+//         teamSelectionBloc.onListChanges(allPlayerList);
+//       } else if (widget.createTeamtype == CreateTeamType.editTeam && widget.createdTeamData != null) {
+//         allPlayerList.forEach((p) {
+//           if (p.title!.toLowerCase() == widget.createdTeamData!.captun!.toLowerCase()) {
+//             p.isSelcted = true;
+//             p.isC = true;
+//           }
+//           if (p.title!.toLowerCase() == widget.createdTeamData!.wiseCaptun!.toLowerCase()) {
+//             p.isVC = true;
+//             p.isSelcted = true;
+//           }
+//           if (isMach(p.title!)) {
+//             p.isSelcted = true;
+//           }
+//         });
+//         teamSelectionBloc.onListChanges(allPlayerList);
+//       } else if (widget.createTeamtype == CreateTeamType.copyTeam && widget.createdTeamData != null) {
+//         allPlayerList.forEach((p) {
+//           if (p.title!.toLowerCase() == widget.createdTeamData!.captun!.toLowerCase()) {
+//             p.isSelcted = true;
+//             p.isC = true;
+//           }
+//           if (p.title!.toLowerCase() == widget.createdTeamData!.wiseCaptun!.toLowerCase()) {
+//             p.isVC = true;
+//             p.isSelcted = true;
+//           }
+//           if (isMach(p.title!)) {
+//             p.isSelcted = true;
+//           }
+//         });
+//         teamSelectionBloc.onListChanges(allPlayerList);
+//       }
+//     }
+//     setState(() {
+//       isLoginProsses = false;
+//     });
+//   }
 
   bool isMach(String name) {
     bool isMach = false;
@@ -427,39 +431,39 @@ void getSquadTeamData() async {
                                   ),
 
 
-                                  Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        matchId!,
-                                        style: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                                  // Expanded(
+                                  //   child: Center(
+                                  //     child: Text(
+                                  //       matchId!,
+                                  //       style: TextStyle(
+                                  //         fontFamily: 'Poppins',
+                                  //         fontSize: 24,
+                                  //         fontWeight: FontWeight.w500,
+                                  //         color: Colors.white,
+                                  //       ),
+                                  //     ),
+                                  //   ),
+                                  // ),
                                   
-                                  Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        cid!,
-                                        style: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                                  // Expanded(
+                                  //   child: Center(
+                                  //     child: Text(
+                                  //       cid!,
+                                  //       style: TextStyle(
+                                  //         fontFamily: 'Poppins',
+                                  //         fontSize: 24,
+                                  //         fontWeight: FontWeight.w500,
+                                  //         color: Colors.white,
+                                  //       ),
+                                  //     ),
+                                  //   ),
+                                  // ),
                                   
                                  // Date will be called from  api 
                                   Expanded(
                                       child: Center(
                                         child: Text(
-                                          formattedDate, // Use the formatted date here
+                                          time!, // Use the formatted date here
                                           style: TextStyle(
                                             fontFamily: 'Poppins',
                                             fontSize: 24,
@@ -743,36 +747,51 @@ void getSquadTeamData() async {
                         child: BlocBuilder(
                           bloc: teamSelectionBloc,
                           builder: (context, TeamSelectionBlocState state) {
+                            // return TabBar(
+                            //   isScrollable: true,
+                            //   indicatorWeight: 3,
+                            //   controller: tabController,
+                            //   unselectedLabelColor: AllCoustomTheme.getTextThemeColors(),
+                            //   indicatorColor: AllCoustomTheme.getThemeData().primaryColor,
+                            //   labelColor: AllCoustomTheme.getBlackAndWhiteThemeColors(),
+                            //   tabs: <Widget>[
+                            //     TabTextView(
+                            //       tabTextType: TabTextType.wk,
+                              
+                            //       count: teamSelectionBloc.getSelectedPlayerCount(wk: TabTextType.wk),
+                            //       isSelected: selectedIndex == 0 ? true : false,
+                            //     ),
+                            //     TabTextView(
+                            //       tabTextType: TabTextType.bat,
+                            //       count: teamSelectionBloc.getSelectedPlayerCount(wk: TabTextType.bat),
+                            //       isSelected: selectedIndex == 1 ? true : false,
+                            //     ),
+                            //     TabTextView(
+                            //       tabTextType: TabTextType.ar,
+                            //       count: teamSelectionBloc.getSelectedPlayerCount(wk: TabTextType.ar),
+                            //       isSelected: selectedIndex == 2 ? true : false,
+                            //     ),
+                            //     TabTextView(
+                            //       tabTextType: TabTextType.bowl,
+                            //       count: teamSelectionBloc.getSelectedPlayerCount(wk: TabTextType.bowl),
+                            //       isSelected: selectedIndex == 3 ? true : false,
+                            //     ),
+                            //   ],
+                            // );
                             return TabBar(
-                              isScrollable: true,
-                              indicatorWeight: 3,
-                              controller: tabController,
-                              unselectedLabelColor: AllCoustomTheme.getTextThemeColors(),
-                              indicatorColor: AllCoustomTheme.getThemeData().primaryColor,
-                              labelColor: AllCoustomTheme.getBlackAndWhiteThemeColors(),
-                              tabs: <Widget>[
-                                TabTextView(
-                                  tabTextType: TabTextType.wk,
-                                  count: teamSelectionBloc.getSelectedPlayerCount(wk: TabTextType.wk),
-                                  isSelected: selectedIndex == 0 ? true : false,
-                                ),
-                                TabTextView(
-                                  tabTextType: TabTextType.bat,
-                                  count: teamSelectionBloc.getSelectedPlayerCount(wk: TabTextType.bat),
-                                  isSelected: selectedIndex == 1 ? true : false,
-                                ),
-                                TabTextView(
-                                  tabTextType: TabTextType.ar,
-                                  count: teamSelectionBloc.getSelectedPlayerCount(wk: TabTextType.ar),
-                                  isSelected: selectedIndex == 2 ? true : false,
-                                ),
-                                TabTextView(
-                                  tabTextType: TabTextType.bowl,
-                                  count: teamSelectionBloc.getSelectedPlayerCount(wk: TabTextType.bowl),
-                                  isSelected: selectedIndex == 3 ? true : false,
-                                ),
-                              ],
-                            );
+  isScrollable: true,
+  indicatorWeight: 3,
+  controller: tabController,
+  unselectedLabelColor: AllCoustomTheme.getTextThemeColors(),
+  indicatorColor: AllCoustomTheme.getThemeData().primaryColor,
+  labelColor: AllCoustomTheme.getBlackAndWhiteThemeColors(),
+  tabs: <Widget>[
+    _buildTab(TabTextType.wk, selectedIndex, teamSelectionBloc.getSelectedPlayerCount(wk:TabTextType.wk)),
+    _buildTab(TabTextType.bat, selectedIndex, teamSelectionBloc.getSelectedPlayerCount(wk:TabTextType.bat)),
+    _buildTab(TabTextType.ar, selectedIndex, teamSelectionBloc.getSelectedPlayerCount(wk:TabTextType.ar)),
+    _buildTab(TabTextType.bowl, selectedIndex, teamSelectionBloc.getSelectedPlayerCount(wk:TabTextType.bowl)),
+  ],
+);
                           },
                         ),
                       ),
@@ -916,7 +935,17 @@ void getSquadTeamData() async {
         ],
       ),
     );
+
   }
+  Widget _buildTab(TabTextType tabType, int selectedIndex, int count) {
+  bool isSelected = selectedIndex == tabType.index;
+
+  return TabTextView(
+    tabTextType: tabType,
+    count: count,
+    isSelected: isSelected,
+  );
+}
 }
 
 
