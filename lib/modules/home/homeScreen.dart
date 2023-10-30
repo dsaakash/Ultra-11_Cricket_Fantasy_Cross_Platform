@@ -419,6 +419,15 @@ SharedPreferences prefs = await SharedPreferences.getInstance();
 // Store a key-value pair in SharedPreferences
 prefs.setString('cid', widget.cid!);
 prefs.setString('matchId', widget.matchId!);
+prefs.setString('country1Flag',widget.country1Flag!);
+prefs.setString('country1Name',widget.country1Name!);
+
+
+
+prefs.setString('country2Flag',widget.country2Flag!);
+prefs.setString('country2Name',widget.country2Name!);
+
+// prefs.setString('country2Flag',widget.country2Flag!);
         Navigator.push(
           context,
           MaterialPageRoute(

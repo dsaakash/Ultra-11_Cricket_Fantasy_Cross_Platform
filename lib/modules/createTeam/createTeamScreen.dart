@@ -2,7 +2,6 @@
 
 
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,8 +46,27 @@ String teamBLogoUrl = '';
 
 String teamAName = '';
 
+String? cid;
+String? matchId;
+String? country1Flag;
+String? country2Flag;
+String? country1Name;
+String? country2Name;
 
- 
+ class Player {
+  final String name;
+  final String battingStyle;
+  final String nationality;
+  final String thumbUrl;
+
+  Player({
+    required this.name,
+    required this.battingStyle,
+    required this.nationality,
+    required this.thumbUrl,
+  });
+}
+
 
 class _CreateTeamScreenState extends State<CreateTeamScreen> with SingleTickerProviderStateMixin {
   late TabController tabController;
@@ -70,12 +88,13 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> with SingleTickerPr
     });
 
     //fetchTeamData();
-  getsquaddata();
+    myteam();
+  // getsquaddata(cid,matchId);
+  
    getSquadTeamData();
     super.initState();
   }
-  String? cid;
-  String? matchId;
+  
 myteam() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -84,83 +103,99 @@ myteam() async {
  print(cid);
  matchId = prefs.getString('matchId');
  print(matchId);
+ country1Flag = prefs.getString('country1Flag');
+ country1Name = prefs.getString('country1Name');
+ country2Flag = prefs.getString('country2Flag');
+ country2Name = prefs.getString('country2Name');
+ 
+
+ getAndProcessSquadData(cid,matchId);
+ getSquadTeamData();
 }
+
+
+
 
 
 //getsquaddata()
   //    ALl matches APi 
 
-Future<http.Response> getsquaddata() async {
+ Future<void> getAndProcessSquadData(cid, matchId) async {
   try {
     setState(() {
       isLoginProsses = true; // Show the loader
     });
 
     final url =
-      "https://rest.entitysport.com/v2/competitions/$cid/squads/$matchId?token=4c5b78057cd282704f2a9dd8ea556ee2";
-
-    // Declare formattedDate here
+        "https://rest.entitysport.com/v2/competitions/$cid/squads/$matchId?token=4c5b78057cd282704f2a9dd8ea556ee2";
 
     final response = await http.get(Uri.parse(url), headers: {
-      HttpHeaders.contentTypeHeader: "application/json",
+      "Content-Type": "application/json",
     });
 
     if (response.statusCode == 200) {
       final responseBody = json.decode(response.body);
       if (responseBody.containsKey('response') &&
           responseBody['response'].containsKey('squads')) {
-        setState(() {
-          responseData = responseBody['response']['squads'];
-          isLoginProsses = false;
-        });
+        List squads = responseBody['response']['squads'];
 
-        // Extract the required information and store it in a list
+        // Process the squads data
         List<Map<String, dynamic>> matchInfoList = [];
 
-        for (var match in responseData) {
-          String dateStart = match['date_start'];
-          String teamALogoUrl = match['team'][0]['logo_url'];
-          String teamAShortName = match['team'][0]['abbr'];
-          String teamBLogoUrl = match['team'][1]['logo_url'];
-          String teamBShortName = match['team'][1]['abbr'];
+        for (var squad in squads) {
+          String teamTitle = squad['title'];
+          String teamLogoUrl = squad['team']['logo_url'];
+          String teamAbbr = squad['team']['abbr'];
 
           // You can use the extracted information as needed.
-          print('Date Start: $dateStart');
-          print('Team A Logo URL: $teamALogoUrl');
-          print('Team A Short Name: $teamAShortName');
-          print('Team B Logo URL: $teamBLogoUrl');
-          print('Team B Short Name: $teamBShortName');
+          print('Team Title: $teamTitle');
+          print('Team Logo URL: $teamLogoUrl');
+          print('Team Abbreviation: $teamAbbr');
 
-          // Store the information in a dictionary and add it to the list
+          // Process player data for this squad
+          List<Map<String, dynamic>> playersList = [];
+          for (var playerData in squad['players']) {
+            final player = {
+              'pid': playerData['pid'],
+              'short_name': playerData['short_name'],
+              'country': playerData['country'],
+              'nationality': playerData['nationality'],
+              'fantasy_player_rating':playerData['fantasy_player_rating']
+            };
+            playersList.add(player);
+
+            // You can use the player information as needed.
+            print('Player: ${playerData['title']}');
+            print('PID: ${playerData['pid']}');
+            print('Short Name: ${playerData['short_name']}');
+            print('Country: ${playerData['country']}');
+            print('Nationality: ${playerData['nationality']}');
+            print('fantasy_player_rating: ${playerData['nationality']}');
+          }
+
+          // Store the squad information along with the player data
           matchInfoList.add({
-            'Date Start': dateStart,
-            'Team A Logo URL': teamALogoUrl,
-            'Team A Short Name': teamAShortName,
-            'Team B Logo URL': teamBLogoUrl,
-            'Team B Short Name': teamBShortName,
+            'Team Title': teamTitle,
+            'Team Logo URL': teamLogoUrl,
+            'Team Abbreviation': teamAbbr,
+            'Players': playersList,
           });
         }
 
-        // You can use matchInfoList as needed for displaying or further processing the data.
-
-        return response;
+        setState(() {
+          responseData = matchInfoList; // Update responseData with the processed data
+          isLoginProsses = false;
+        });
       } else {
-        print('No response available in the JSON.');
+        print('No "response" or "squads" available in the JSON.');
       }
-
-      setState(() {
-        responseData = responseBody['items'];
-        print(responseData);
-        isLoginProsses = false;
-      });
-
-      return response;
     } else {
       // Handle errors here
       setState(() {
         isLoginProsses = false;
       });
-      throw Exception('Failed');
+      print('Failed: Status code ${response.statusCode}');
+      print('Response body: ${response.body}');
     }
   } catch (error) {
     // Handle exceptions or errors here
@@ -168,14 +203,93 @@ Future<http.Response> getsquaddata() async {
       isLoginProsses = false;
     });
     print('Error: $error');
-    throw Exception('Failed');
+    getSquadTeamData();
   }
 }
 
 
 
 
- void getSquadTeamData() async {
+// void getSquadTeamData() async {
+//   try {
+//     setState(() {
+//       isLoginProsses = true;
+//     });
+
+//     // Call your API to get squad team data
+//     await getAndProcessSquadData(cid, matchId); // Replace cid and matchId with actual values
+
+//     if (responseData.isNotEmpty) {
+//       allPlayerList.clear();
+
+//       // Iterate through the responseData and extract player information
+//       for (var squadData in responseData) {
+//         if (squadData.containsKey('Players')) {
+//           List<dynamic> playersList = squadData['Players'];
+//           for (var playerData in playersList) {
+//             Player player = Player(
+//               name: playerData['title'],
+//               battingStyle: playerData['batting_style'],
+//               nationality: playerData['nationality'],
+//               thumbUrl: playerData['thumb_url'],
+//             );
+
+//             allPlayerList.add(player as Players);
+//           }
+//         }
+//       }
+
+//       // Handle the rest of your logic here
+//       teamSelectionBloc = TeamSelectionBloc(TeamSelectionBlocState.initial());
+//       teamTapBloc = TeamTapBloc(TeamTapBlocState.initial());
+//       if (widget.createTeamtype == CreateTeamType.createTeam) {
+//         teamSelectionBloc.onListChanges(allPlayerList);
+//       } else if (widget.createTeamtype == CreateTeamType.editTeam && widget.createdTeamData != null) {
+//         allPlayerList.forEach((p) {
+//           if (p.title!.toLowerCase() == widget.createdTeamData!.captun!.toLowerCase()) {
+//             p.isSelcted = true;
+//             p.isC = true;
+//           }
+//           if (p.title!.toLowerCase() == widget.createdTeamData!.wiseCaptun!.toLowerCase()) {
+//             p.isVC = true;
+//             p.isSelcted = true;
+//           }
+//           if (isMach(p.title!)) {
+//             p.isSelcted = true;
+//           }
+//         });
+//         teamSelectionBloc.onListChanges(allPlayerList);
+//       } else if (widget.createTeamtype == CreateTeamType.copyTeam && widget.createdTeamData != null) {
+//         allPlayerList.forEach((p) {
+//           if (p.title!.toLowerCase() == widget.createdTeamData!.captun!.toLowerCase()) {
+//             p.isSelcted = true;
+//             p.isC = true;
+//           }
+//           if (p.title!.toLowerCase() == widget.createdTeamData!.wiseCaptun!.toLowerCase()) {
+//             p.isVC = true;
+//             p.isSelcted = true;
+//           }
+//           if (isMach(p.title!)) {
+//             p.isSelcted = true;
+//           }
+//         });
+//         teamSelectionBloc.onListChanges(allPlayerList);
+//       }
+//     }
+
+//     setState(() {
+//       isLoginProsses = false;
+//     });
+//   } catch (error) {
+//     setState(() {
+//       isLoginProsses = false;
+//     });
+//     print('Error: $error');
+//   }
+// }
+
+
+void getSquadTeamData() async {
     setState(() {
       isLoginProsses = true;
     });
@@ -227,6 +341,24 @@ Future<http.Response> getsquaddata() async {
   }
 
   bool isMach(String name) {
+    bool isMach = false;
+    var allplayername = <String>[];
+    allplayername.addAll(widget.createdTeamData!.bastman!.split(','));
+    allplayername.addAll(widget.createdTeamData!.allRounder!.split(','));
+    allplayername.addAll(widget.createdTeamData!.bowler!.split(','));
+    allplayername.add(widget.createdTeamData!.wicketKeeper!);
+    allplayername.forEach((pName) {
+      if (pName == name) {
+        isMach = true;
+        return;
+      }
+    });
+    return isMach;
+  }
+
+
+
+  bool isMatch(String name) {
     bool isMach = false;
     var allplayername = <String>[];
     allplayername.addAll(widget.createdTeamData!.bastman!.split(','));
@@ -434,49 +566,50 @@ Future<http.Response> getsquaddata() async {
                                                   children: <Widget>[
 
 
-                                                    // Container(
-                                                    //   child: Text(
-                                                    //     'SA',
-                                                    //     style: TextStyle(
-                                                    //       fontFamily: 'Poppins',
-                                                    //       color: Colors.white54,
-                                                    //       fontSize: MediaQuery.of(context).size.width >= 360
-                                                    //           ? ConstanceData.SIZE_TITLE12
-                                                    //           : ConstanceData.SIZE_TITLE10,
-                                                    //     ),
-                                                    //   ),
-                                                    // ),
+                                                    Container(
+                                                      child: Text(
+                                                        country1Name!,
+                                                        style: TextStyle(
+                                                          fontFamily: 'Poppins',
+                                                          color: Colors.white54,
+                                                          fontSize: MediaQuery.of(context).size.width >= 360
+                                                              ? ConstanceData.SIZE_TITLE12
+                                                              : ConstanceData.SIZE_TITLE10,
+                                                        ),
+                                                      ),
+                                                    ),
 
                                                   
     
-                                                    // Container(
-                                                    //   child: BlocBuilder(
-                                                    //     bloc: teamSelectionBloc,
-                                                    //     builder: (context, TeamSelectionBlocState state) {
-                                                    //       return Text(
-                                                    //         'SA',
-                                                    //         textAlign: TextAlign.start,
-                                                    //         style: TextStyle(
-                                                    //           fontFamily: 'Poppins',
-                                                    //           fontWeight: FontWeight.bold,
-                                                    //           color: Colors.white,
-                                                    //           fontSize: MediaQuery.of(context).size.width >= 360
-                                                    //               ? ConstanceData.SIZE_TITLE18
-                                                    //               : ConstanceData.SIZE_TITLE16,
-                                                    //         ),
-                                                    //       );
-                                                    //     },
-                                                    //   ),
-                                                    // ),
+                                                    Container(
+                                                      child: BlocBuilder(
+                                                        bloc: teamSelectionBloc,
+                                                        builder: (context, TeamSelectionBlocState state) {
+                                                          return Text(
+                                                            country1Name!,
+                                                            
+                                                            textAlign: TextAlign.start,
+                                                            style: TextStyle(
+                                                              fontFamily: 'Poppins',
+                                                              fontWeight: FontWeight.bold,
+                                                              color: Colors.white,
+                                                              fontSize: MediaQuery.of(context).size.width >= 360
+                                                                  ? ConstanceData.SIZE_TITLE18
+                                                                  : ConstanceData.SIZE_TITLE16,
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
                                                   ],
                                                 ),
                                               ),
                                             ),
-                                          //  Container(
-                                          //             width: 50,
-                                          //             height: 50,
-                                          //             child: Image.network(widget.country1Flag),
-                                          //           ),
+                                           Container(
+                                                      width: 50,
+                                                      height: 50,
+                                                      child: Image.network(country1Flag!),
+                                                    ),
 
                                             Container(
                                               width: 16,
@@ -484,13 +617,13 @@ Future<http.Response> getsquaddata() async {
                                             // Container(
                                             //   width: 50,
                                             //   height: 50,
-                                            //   child: Image.asset('assets/25.png'),
+                                            //   child: Image.asset(country2Flag!),
                                             // ),
-                                            //  Container(
-                                            //           width: 50,
-                                            //           height: 50,
-                                            //           child: Image.network(teamBLogoUrl),
-                                            //         ),
+                                             Container(
+                                                      width: 50,
+                                                      height: 50,
+                                                      child: Image.network(country2Flag!),
+                                                    ),
                                             Expanded(
                                               child: Container(
                                                 padding: EdgeInsets.only(left: 4),
@@ -499,37 +632,37 @@ Future<http.Response> getsquaddata() async {
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   mainAxisAlignment: MainAxisAlignment.center,
                                                   children: <Widget>[
-                                                    // Container(
-                                                    //   child: Text(
-                                                    //     'IND',
-                                                    //     style: TextStyle(
-                                                    //       fontFamily: 'Poppins',
-                                                    //       color: Colors.white54,
-                                                    //       fontSize: MediaQuery.of(context).size.width >= 360
-                                                    //           ? ConstanceData.SIZE_TITLE12
-                                                    //           : ConstanceData.SIZE_TITLE10,
-                                                    //     ),
-                                                    //   ),
-                                                    // ),
-                                                    // Container(
-                                                    //   child: BlocBuilder(
-                                                    //     bloc: teamSelectionBloc,
-                                                    //     builder: (context, TeamSelectionBlocState state) {
-                                                    //       return Text(
-                                                    //         'IND',
-                                                    //         textAlign: TextAlign.start,
-                                                    //         style: TextStyle(
-                                                    //           fontFamily: 'Poppins',
-                                                    //           fontWeight: FontWeight.bold,
-                                                    //           color: Colors.white,
-                                                    //           fontSize: MediaQuery.of(context).size.width >= 360
-                                                    //               ? ConstanceData.SIZE_TITLE18
-                                                    //               : ConstanceData.SIZE_TITLE16,
-                                                    //         ),
-                                                    //       );
-                                                    //     },
-                                                    //   ),
-                                                    // ),
+                                                    Container(
+                                                      child: Text(
+                                                        country2Name!,
+                                                        style: TextStyle(
+                                                          fontFamily: 'Poppins',
+                                                          color: Colors.white54,
+                                                          fontSize: MediaQuery.of(context).size.width >= 360
+                                                              ? ConstanceData.SIZE_TITLE12
+                                                              : ConstanceData.SIZE_TITLE10,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Container(
+                                                      child: BlocBuilder(
+                                                        bloc: teamSelectionBloc,
+                                                        builder: (context, TeamSelectionBlocState state) {
+                                                          return Text(
+                                                            country2Name!,
+                                                            textAlign: TextAlign.start,
+                                                            style: TextStyle(
+                                                              fontFamily: 'Poppins',
+                                                              fontWeight: FontWeight.bold,
+                                                              color: Colors.white,
+                                                              fontSize: MediaQuery.of(context).size.width >= 360
+                                                                  ? ConstanceData.SIZE_TITLE18
+                                                                  : ConstanceData.SIZE_TITLE16,
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
                                                   ],
                                                 ),
                                               ),
@@ -858,122 +991,6 @@ class TeamSelectionList extends StatefulWidget {
   _TeamSelectionListState createState() => _TeamSelectionListState();
 }
 
-
-class CreateHeader extends StatefulWidget {
-  final String? titel;
-  final String? country1Name;
-  final String? country1Flag;
-  final String? country2Name;
-  final String? country2Flag;
-  final String? time;
-  
-
-  const CreateHeader({
-    Key? key,
-    this.titel,
-    this.country1Name,
-    this.country1Flag,
-    this.country2Name,
-    this.country2Flag,
-    this.time,
-  
-  }) : super(key: key);
-
-  @override
-  _CreateHeader createState() => _CreateHeader();
-}
-
-class _CreateHeader extends State<CreateHeader> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: AllCoustomTheme.getThemeData().backgroundColor,
-      child: Column(
-        children: <Widget>[
-          Container(
-            height: 36,
-            padding: EdgeInsets.only(left: 8, right: 8, bottom: 4, top: 4),
-            child: Row(
-              children: <Widget>[
-                Container(
-                  width: 24,
-                  height: 24,
-                  child: Image.network(widget.country1Flag!),
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 8, right: 8),
-                  child: Text(
-                    widget.country1Name!,
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
-                      color: AllCoustomTheme.getThemeData().primaryColor,
-                      fontSize: ConstanceData.SIZE_TITLE12,
-                    ),
-                  ),
-                ),
-                Container(
-                  child: Text(
-                    'vs',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: ConstanceData.SIZE_TITLE12,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 8, right: 8),
-                  child: Text(
-                    widget.country2Name!,
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
-                      color: AllCoustomTheme.getThemeData().primaryColor,
-                      fontSize: ConstanceData.SIZE_TITLE12,
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 24,
-                  height: 24,
-                  child: Image.network(widget.country2Flag!),
-                ),
-                Expanded(
-                  child: SizedBox(),
-                ),
-                Container(
-                  child: Text(
-                    widget.time!,
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      color: HexColor(
-                        '#AAAFBC',
-                      ),
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 10,
-          )
-        ],
-      ),
-    );
-  }
-}
-
-
-
-
 class _TeamSelectionListState extends State<TeamSelectionList> {
   var messageList = <String>[];
   var animationType = AnimationType.isRegular;
@@ -984,6 +1001,7 @@ class _TeamSelectionListState extends State<TeamSelectionList> {
 
 
    // allmatches();
+  
 
     
 
