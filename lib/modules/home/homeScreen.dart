@@ -289,14 +289,6 @@ Future<http.Response> allmatches() async {
 
       List<Widget> teamWidgets = [];
 
-
-
-
-
-
-
-
-
       if (teamA != null && teamB != null) {
         final allTeams = [teamA, teamB];
 
@@ -354,30 +346,6 @@ Future<http.Response> allmatches() async {
     widget.menuCallBack!();
   }
 }
-
-// class MatchesList extends StatefulWidget {
-//   final String? titel;
-//   final String? country1Name;
-//   final String? country1Flag;
-//   final String? country2Name;
-//   final String? country2Flag;
-//   final String? time;
-//   final String? price;
-//
-//   const MatchesList({
-//     Key? key,
-//     this.titel,
-//     this.country1Name,
-//     this.country2Name,
-//     this.time,
-//     this.price,
-//     this.country1Flag,
-//     this.country2Flag,
-//   }) : super(key: key);
-//
-//   @override
-//   _MatchesListState createState() => _MatchesListState();
-// }
 class MatchesList extends StatefulWidget {
   final String? titel;
   final String? country1Name;
@@ -421,6 +389,8 @@ prefs.setString('cid', widget.cid!);
 prefs.setString('matchId', widget.matchId!);
 prefs.setString('country1Flag',widget.country1Flag!);
 prefs.setString('country1Name',widget.country1Name!);
+
+prefs.setString('time',widget.time!);
 
 
 
@@ -484,7 +454,7 @@ prefs.setString('country2Name',widget.country2Name!);
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontFamily: 'Poppins',
-                          fontSize: 8,
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: Theme.of(context).disabledColor,
                         ),
@@ -517,32 +487,10 @@ prefs.setString('country2Name',widget.country2Name!);
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      //---------competation id
-                      Text(
-                        widget.cid!,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: ConstanceData.SIZE_TITLE14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                     
                       Expanded(child: SizedBox()),
                       Text(
                         widget.country2Name!,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: ConstanceData.SIZE_TITLE14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-
-
-                      //----------Match ID:
-
-                      Text(
-                        widget.matchId!,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontFamily: 'Poppins',
