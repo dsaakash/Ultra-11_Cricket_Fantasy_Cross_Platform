@@ -67,43 +67,52 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
     time = prefs.getString('time') ?? '';
 
     if (cid != null && matchId != null) {
-      final List<Map<String, dynamic>> players = await getPlayers(cid, matchId);
-      final response = await getMatchDetails(matchId);
+      try {
+        final List<Map<String, dynamic>> players = await getPlayers(cid, matchId);
+        final response = await getMatchDetails(matchId);
 
-      setState(() {
-        allPlayerList = players;
-        isDataLoading = false;
-        if (response != null) {
-          team1ImageUrl = response['squad'][0]['team']['logo_url'] ?? '';
-          team2ImageUrl = response['squad'][1]['team']['logo_url'] ?? '';
+        setState(() {
+          allPlayerList = players;
+          isDataLoading = false;
+          if (response != null) {
+            team1ImageUrl = response['squad'][0]['team']['logo_url'] ?? '';
+            team2ImageUrl = response['squad'][1]['team']['logo_url'] ?? '';
+          }
+
+          wkCount = players.where((player) => (player['playing_role'] ?? '').toLowerCase() == "wk").length;
+          batCount = players.where((player) => (player['playing_role'] ?? '').toLowerCase() == "bat").length;
+          bowlCount = players.where((player) => (player['playing_role'] ?? '').toLowerCase() == "bowl").length;
+          arCount = players.where((player) => (player['playing_role'] ?? '').toLowerCase() == "all").length;
+        });
+
+        if (matchId != null) {
+          final playing11Response = await getPlaying11(matchId);
+
+          if (playing11Response != null) {
+            setState(() {
+              playing11 = playing11Response['players'] ?? [];
+
+              for (var player in allPlayerList) {
+                final isPlaying = playing11.contains(player);
+                playerPlayingStatus[player['short_name']] = isPlaying;
+              }
+            });
+          }
         }
-
-        wkCount = players.where((player) => (player['playing_role'] ?? '').toLowerCase() == "wk").length;
-        batCount = players.where((player) => (player['playing_role'] ?? '').toLowerCase() == "bat").length;
-        bowlCount = players.where((player) => (player['playing_role'] ?? '').toLowerCase() == "bowl").length;
-        arCount = players.where((player) => (player['playing_role'] ?? '').toLowerCase() == "all").length;
-      });
-
-      if (matchId != null) {
-        final playing11Response = await getPlaying11(matchId);
-
-        if (playing11Response != null) {
-          setState(() {
-            playing11 = playing11Response['players'] ?? [];
-
-            for (var player in allPlayerList) {
-              final isPlaying = playing11.contains(player);
-              playerPlayingStatus[player['short_name']] = isPlaying;
-            }
-          });
-        }
+      } on DioError catch (e) {
+        print("DioException: $e");
+        // Handle DioException, show an error message, or retry the request.
+      } catch (e) {
+        print("Error fetching data: $e");
+        // Handle other exceptions.
       }
     }
   }
 
   Future<List<Map<String, dynamic>>> getPlayers(String cid, String matchId) async {
     final List<Map<String, dynamic>> players = [];
-    final String query = "https://rest.entitysport.com/v2/competitions/$cid/squads/$matchId?token=4c5b78057cd282704f2a9dd8ea556ee2";
+    final String query =
+        "https://rest.entitysport.com/v2/competitions/$cid/squads/$matchId?token=4c5b78057cd282704f2a9dd8ea556ee2";
     final Map<String, dynamic> headers = {"Content-Type": "application/json"};
 
     try {
@@ -133,7 +142,8 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
   }
 
   Future<Map<String, dynamic>?> getMatchDetails(String matchId) async {
-    final String query = "https://rest.entitysport.com/v2/match/squads/$matchId?token=4c5b78057cd282704f2a9dd8ea556ee2";
+    final String query =
+        "https://rest.entitysport.com/v2/match/squads/$matchId?token=4c5b78057cd282704f2a9dd8ea556ee2";
     final Map<String, dynamic> headers = {"Content-Type": "application/json"};
 
     try {
@@ -156,7 +166,8 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
   }
 
   Future<Map<String, dynamic>?> getPlaying11(String matchId) async {
-    final String query = "https://rest.entitysport.com/v2/matches/$matchId/squads?token=4c5b78057cd282704f2a9dd8ea556ee2";
+    final String query =
+        "https://rest.entitysport.com/v2/matches/$matchId/squads?token=4c5b78057cd282704f2a9dd8ea556ee2";
     final Map<String, dynamic> headers = {"Content-Type": "application/json"};
 
     try {
@@ -318,51 +329,54 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
                   ),
                 ),
               ),
-              SingleChildScrollView(
-             child: DataTable(
-                columns: [
-                  DataColumn(label: Text('Player')),
-                  DataColumn(label: Text('Points')),
-                  DataColumn(label: Text('Credits')),
-                  DataColumn(label: Text('Select')),
-                ],
-                dataRowHeight: 80,
-                columnSpacing: 10,
-                rows: filteredPlayers.map((player) {
-                  final fantasyPlayerRating = player['fantasy_player_rating'];
-                  final isPlayerSelected = selectedPlayers.contains(player);
-
-                  return DataRow(
-                    selected: isPlayerSelected,
-                    cells: [
-                      DataCell(
-                        Row(
-                          children: [
-                            _buildPlayerAvatar(player),
-                            SizedBox(width: 10),
-                            Flexible(
-                              child: Text(
-                                player['short_name'] ?? '',
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      DataCell(Text("0.0")),
-                      DataCell(Text("$fantasyPlayerRating")),
-                      DataCell(
-                        IconButton(
-                          icon: Icon(isPlayerSelected ? Icons.remove : Icons.add),
-                          onPressed: () {
-                            togglePlayerSelection(player);
-                          },
-                        ),
-                      ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: DataTable(
+                    columns: [
+                      DataColumn(label: Text('Player')),
+                      DataColumn(label: Text('Points')),
+                      DataColumn(label: Text('Credits')),
+                      DataColumn(label: Text('Select')),
                     ],
-                  );
-                }).toList(),
-              )),
+                    dataRowHeight: 80,
+                    columnSpacing: 10,
+                    rows: filteredPlayers.map((player) {
+                      final fantasyPlayerRating = player['fantasy_player_rating'];
+                      final isPlayerSelected = selectedPlayers.contains(player);
+
+                      return DataRow(
+                        selected: isPlayerSelected,
+                        cells: [
+                          DataCell(
+                            Row(
+                              children: [
+                                _buildPlayerAvatar(player),
+                                SizedBox(width: 10),
+                                Flexible(
+                                  child: Text(
+                                    player['short_name'] ?? '',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          DataCell(Text("0.0")),
+                          DataCell(Text("$fantasyPlayerRating")),
+                          DataCell(
+                            IconButton(
+                              icon: Icon(isPlayerSelected ? Icons.remove : Icons.add),
+                              onPressed: () {
+                                togglePlayerSelection(player);
+                              },
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
             ],
           );
   }
