@@ -33,27 +33,42 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
     fetchData();
   }
 
-  Widget _buildPlayerAvatar(Map<String, dynamic> player) {
-    final logoUrl = player['logo_url'] as String?;
-    return Column(
-      children: [
-        CircleAvatar(
-          backgroundImage: logoUrl != null
-              ? NetworkImage(logoUrl)
-              : AssetImage('assets/playerImage.png') as ImageProvider,
-          radius: 25,
+Widget _buildPlayerAvatar(Map<String, dynamic> player) {
+  final logoUrl = player['logo_url'] as String?;
+  final defaultImage = AssetImage('assets/playerImage.png');
+
+  return Column(
+    children: [
+      CircleAvatar(
+        radius: 25,
+        backgroundColor: Colors.transparent,
+        child: logoUrl != null
+            ? Image.network(
+                logoUrl,
+                errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                  return Image(image: defaultImage);
+                },
+              )
+            : Image(image: defaultImage),
+      ),
+      SizedBox(height: 4),
+      Text(
+        playerPlayingStatus[player['short_name']] == true ? "Playing" : "Not Playing",
+        style: TextStyle(
+          color: playerPlayingStatus[player['short_name']] == true ? Colors.green : Colors.red,
+          fontSize: 12,
         ),
-        SizedBox(height: 4),
-        Text(
-          playerPlayingStatus[player['short_name']] == true ? "Playing" : "Not Playing",
-          style: TextStyle(
-            color: playerPlayingStatus[player['short_name']] == true ? Colors.green : Colors.red,
-            fontSize: 12,
-          ),
-        ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
+
+
+
+
+
+
+
 
   Future<void> fetchData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -81,8 +96,9 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
 
           wkCount = players.where((player) => (player['playing_role'] ?? '').toLowerCase() == "wk").length;
           batCount = players.where((player) => (player['playing_role'] ?? '').toLowerCase() == "bat").length;
-          bowlCount = players.where((player) => (player['playing_role'] ?? '').toLowerCase() == "bowl").length;
           arCount = players.where((player) => (player['playing_role'] ?? '').toLowerCase() == "all").length;
+          bowlCount = players.where((player) => (player['playing_role'] ?? '').toLowerCase() == "bowl").length;
+          
         });
 
         if (matchId != null) {
@@ -128,7 +144,9 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
           for (var squad in squads) {
             final List<dynamic>? playersList = squad['players'];
             if (playersList != null) {
-              players.addAll(playersList.cast<Map<String, dynamic>>());
+              players.addAll(playersList.map((dynamic item) {
+                return item as Map<String, dynamic>;
+              }).toList());
             }
           }
         }
@@ -140,6 +158,7 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
       return players;
     }
   }
+
 
   Future<Map<String, dynamic>?> getMatchDetails(String matchId) async {
     final String query =
@@ -250,8 +269,9 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
                               tabs: [
                                 Tab(text: "WK (${wkCount.toString()})"),
                                 Tab(text: "BAT (${batCount.toString()})"),
-                                Tab(text: "BOWL (${bowlCount.toString()})"),
                                 Tab(text: "AR (${arCount.toString()})"),
+                                Tab(text: "BOWL (${bowlCount.toString()})"),
+                                
                               ],
                             ),
                             Expanded(
