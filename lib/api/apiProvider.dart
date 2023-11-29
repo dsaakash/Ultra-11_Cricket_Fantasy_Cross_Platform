@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:tempalteflutter/models/DrawerInfoResponceData.dart';
 import 'package:tempalteflutter/models/appVersionResponce.dart';
 import 'package:tempalteflutter/models/bankListResponseData.dart';
@@ -100,6 +101,37 @@ class ApiProvider {
     print(responseData);
 
     return responseData;
+  }
+
+   Future<List<Map<String, dynamic>>> getPlayers(String cid, String matchId) async {
+    final List<Map<String, dynamic>> players = [];
+    final String query =
+        "https://rest.entitysport.com/v2/competitions/$cid/squads/$matchId?token=4c5b78057cd282704f2a9dd8ea556ee2";
+    final Map<String, dynamic> headers = {"Content-Type": "application/json"};
+
+    try {
+      final response = await Dio().get(
+        query,
+        options: Options(headers: headers),
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic>? squads = response.data?['response']['squads'];
+        if (squads != null) {
+          for (var squad in squads) {
+            final List<dynamic>? playersList = squad['players'];
+            if (playersList != null) {
+              players.addAll(playersList.map((dynamic item) {
+                return item as Map<String, dynamic>;
+              }).toList());
+            }
+          }
+        }
+      }
+      return players;
+    } catch (e) {
+      print("Error fetching player data: $e");
+      return players;
+    }
   }
   
 

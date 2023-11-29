@@ -52,47 +52,158 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
 
 
-Future<http.Response> allmatches() async {
+// Future<http.Response> allmatches() async {
+//   try {
+//     setState(() {
+//       isLoginProsses = true; // Show the loader
+//     });
+
+//     final url = "https://rest.entitysport.com/v2/matches/?status=3&token=4c5b78057cd282704f2a9dd8ea556ee2";
+
+//     final response = await http.get(Uri.parse(url), headers: {
+//       HttpHeaders.contentTypeHeader: "application/json",
+//     });
+
+
+
+//     if (response.statusCode == 200) {
+//       final responseBody = json.decode(response.body);
+//       if (responseBody.containsKey('response') &&
+//           responseBody['response'].containsKey('items')) {
+//         setState(() {
+//           responseData = responseBody['response']['items'];
+//           isLoginProsses = false;
+//         });
+
+//         return response;
+//       } else {
+//         print('No response available in the JSON.');
+//       }
+
+//       setState(() {
+//         responseData = responseBody['items'];
+//         print(responseData);
+//         isLoginProsses = false;
+//       });
+
+//       return response;
+//     } else {
+//       // Handle errors here
+//       setState(() {
+//         isLoginProsses = false;
+//       });
+//       throw Exception('Failed');
+//     }
+//   } catch (error) {
+//     // Handle exceptions or errors here
+//     setState(() {
+//       isLoginProsses = false;
+//     });
+//     print('Error: $error');
+//     throw Exception('Failed');
+//   }
+// }
+
+// Future<void> allmatches() async {
+//   try {
+//     setState(() {
+//       isLoginProsses = true; // Show the loader
+//     });
+
+//     final liveMatchesUrl = "https://rest.entitysport.com/v2/matches/?status=3&token=4c5b78057cd282704f2a9dd8ea556ee2";
+//     final upcomingMatchesUrl = "https://rest.entitysport.com/v2/matches/?status=1&token=4c5b78057cd282704f2a9dd8ea556ee2";
+
+//     final liveMatchesResponse = await http.get(Uri.parse(liveMatchesUrl), headers: {
+//       HttpHeaders.contentTypeHeader: "application/json",
+//     });
+
+//     final upcomingMatchesResponse = await http.get(Uri.parse(upcomingMatchesUrl), headers: {
+//       HttpHeaders.contentTypeHeader: "application/json",
+//     });
+
+//     if (liveMatchesResponse.statusCode == 200 && upcomingMatchesResponse.statusCode == 200) {
+//       final liveMatchesBody = json.decode(liveMatchesResponse.body);
+//       final upcomingMatchesBody = json.decode(upcomingMatchesResponse.body);
+
+//       if (liveMatchesBody.containsKey('response') && liveMatchesBody['response'].containsKey('items') &&
+//           upcomingMatchesBody.containsKey('response') && upcomingMatchesBody['response'].containsKey('items')) {
+//         setState(() {
+//           // Combine live and upcoming matches data
+//           responseData = [...liveMatchesBody['response']['items'], ...upcomingMatchesBody['response']['items']];
+//           isLoginProsses = false;
+//         });
+//       } else {
+//         print('No response available in the JSON for matches.');
+//       }
+//     } else {
+//       // Handle errors here
+//       print('Failed to fetch matches. Status codes: ${liveMatchesResponse.statusCode}, ${upcomingMatchesResponse.statusCode}');
+//       setState(() {
+//         isLoginProsses = false;
+//       });
+//       throw Exception('Failed to fetch matches.');
+//     }
+//   } catch (error) {
+//     // Handle exceptions or errors here
+//     setState(() {
+//       isLoginProsses = false;
+//     });
+//     print('Error: $error');
+//     throw Exception('Failed to fetch matches.');
+//   }
+// }
+
+Future<void> allmatches() async {
   try {
     setState(() {
       isLoginProsses = true; // Show the loader
     });
 
-    final url = "https://rest.entitysport.com/v2/matches/?status=1&token=4c5b78057cd282704f2a9dd8ea556ee2";
+    final liveMatchesUrl = "https://rest.entitysport.com/v2/matches/?status=3&token=4c5b78057cd282704f2a9dd8ea556ee2";
+    final upcomingMatchesUrl = "https://rest.entitysport.com/v2/matches/?status=1&token=4c5b78057cd282704f2a9dd8ea556ee2";
+    final completedMatchesUrl = "https://rest.entitysport.com/v2/matches/?status=2&token=4c5b78057cd282704f2a9dd8ea556ee2";
 
-    final response = await http.get(Uri.parse(url), headers: {
+    final liveMatchesResponse = await http.get(Uri.parse(liveMatchesUrl), headers: {
       HttpHeaders.contentTypeHeader: "application/json",
     });
 
+    final upcomingMatchesResponse = await http.get(Uri.parse(upcomingMatchesUrl), headers: {
+      HttpHeaders.contentTypeHeader: "application/json",
+    });
 
+    final completedMatchesResponse = await http.get(Uri.parse(completedMatchesUrl), headers: {
+      HttpHeaders.contentTypeHeader: "application/json",
+    });
 
-    if (response.statusCode == 200) {
-      final responseBody = json.decode(response.body);
-      if (responseBody.containsKey('response') &&
-          responseBody['response'].containsKey('items')) {
+    if (liveMatchesResponse.statusCode == 200 &&
+        upcomingMatchesResponse.statusCode == 200 &&
+        completedMatchesResponse.statusCode == 200) {
+      final liveMatchesBody = json.decode(liveMatchesResponse.body);
+      final upcomingMatchesBody = json.decode(upcomingMatchesResponse.body);
+      final completedMatchesBody = json.decode(completedMatchesResponse.body);
+
+      if (liveMatchesBody.containsKey('response') && liveMatchesBody['response'].containsKey('items') &&
+          upcomingMatchesBody.containsKey('response') && upcomingMatchesBody['response'].containsKey('items') &&
+          completedMatchesBody.containsKey('response') && completedMatchesBody['response'].containsKey('items')) {
         setState(() {
-          responseData = responseBody['response']['items'];
+          // Combine live, upcoming, and completed matches data
+          responseData = [
+            ...liveMatchesBody['response']['items'],
+            ...upcomingMatchesBody['response']['items'],
+            ...completedMatchesBody['response']['items']
+          ];
           isLoginProsses = false;
         });
-
-        return response;
       } else {
-        print('No response available in the JSON.');
+        print('No response available in the JSON for matches.');
       }
-
-      setState(() {
-        responseData = responseBody['items'];
-        print(responseData);
-        isLoginProsses = false;
-      });
-
-      return response;
     } else {
       // Handle errors here
+      print('Failed to fetch matches. Status codes: ${liveMatchesResponse.statusCode}, ${upcomingMatchesResponse.statusCode}, ${completedMatchesResponse.statusCode}');
       setState(() {
         isLoginProsses = false;
       });
-      throw Exception('Failed');
+      throw Exception('Failed to fetch matches.');
     }
   } catch (error) {
     // Handle exceptions or errors here
@@ -100,14 +211,9 @@ Future<http.Response> allmatches() async {
       isLoginProsses = false;
     });
     print('Error: $error');
-    throw Exception('Failed');
+    throw Exception('Failed to fetch matches.');
   }
 }
-
-
-
-
-
 
   @override
   void dispose() {
@@ -273,6 +379,8 @@ Future<http.Response> allmatches() async {
     return Container();
   }
 
+  
+
   final matchCards = responseData.map<Widget>((match) {
     final title = match['title'];
     final country1 = match['teama'];
@@ -316,7 +424,8 @@ Future<http.Response> allmatches() async {
       final country2Flag = country2Name != null ? country2['logo_url'] : null;
 
       final price = "₹2 Lakhs"; // You may extract the price from the data.
-      final time = match['date_start'];
+      // final time = match['date_start'];
+      final time = match['date_start_ist'];
       final cid = match['competition']['cid'];
 
       if (country1Name != null && country2Name != null) {
@@ -454,7 +563,7 @@ prefs.setString('country2Name',widget.country2Name!);
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontFamily: 'Poppins',
-                          fontSize: 12,
+                          fontSize: 8,
                           fontWeight: FontWeight.w500,
                           color: Theme.of(context).disabledColor,
                         ),

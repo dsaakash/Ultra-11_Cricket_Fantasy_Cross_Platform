@@ -14,6 +14,7 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
   String team1ImageUrl = '';
   String team2ImageUrl = '';
   int wkCount = 0;
+  List playersPlayingData = [];
   int batCount = 0;
   int bowlCount = 0;
   int arCount = 0;
@@ -132,6 +133,38 @@ String time = '';
       return null;
     }
   }
+
+  Future<List<Map<String, dynamic>>?> getPlaying11(String matchId) async {
+  final String query =
+      "https://rest.entitysport.com/v2/matches/71547/squads?token=4c5b78057cd282704f2a9dd8ea556ee2";
+  final Map<String, dynamic> headers = {"Content-Type": "application/json"};
+  try {
+    final response = await Dio().get(
+      query,
+      options: Options(headers: headers),
+    );
+    if (response.statusCode == 200) {
+      final Map<String, dynamic>? responseData = response.data?['response'];
+      final List<Map<String, dynamic>> playing11Response = [];
+      if (responseData != null) {
+        for (var teamKey in ['teama', 'teamb']) {
+          playersPlayingData = responseData[teamKey]?['squads'];
+          final List<dynamic>? squads = responseData[teamKey]?['squads'];
+          if (squads != null) {
+            playing11Response.addAll(List<Map<String, dynamic>>.from(squads));
+          }
+        }
+        return playing11Response;
+      }
+    } else {
+      print("Error: ${response.statusCode}, ${response.statusMessage}");
+    }
+    return null;
+  } catch (e) {
+    print("Error fetching playing 11: $e");
+    return null;
+  }
+}
 
  @override
 Widget build(BuildContext context) {
