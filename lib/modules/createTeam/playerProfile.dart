@@ -10,8 +10,6 @@
 // import 'package:tempalteflutter/models/squadsResponseData.dart';
 // import 'package:tempalteflutter/utils/avatarImage.dart';
 
-// import 'createTeamScreen.dart';
-
 // class PlayerProfileScreen extends StatefulWidget {
 //   final Players? player;
 //   final bool? isChoose;

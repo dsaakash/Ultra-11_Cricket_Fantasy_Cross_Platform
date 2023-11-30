@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:math' as math;
 
 class Player {
   final String name;
@@ -303,7 +304,22 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
     final defaultImage = AssetImage('assets/playerImage.png');
     final imageUrl = logoUrl ?? '';
 
-    return Column(
+
+    return GestureDetector(
+    onTap: () {
+      // Navigate to the player details screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PlayerDetailsScreen(player: player),
+        ),
+      );
+    },
+
+
+    
+
+    child: Column(
       children: [
         CircleAvatar(
           radius: 25,
@@ -327,8 +343,11 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
           ),
         ),
       ],
+    ),
     );
   }
+
+
 
   Widget playerListView(String role, String header) {
     List<Map<String, dynamic>> filteredPlayers = allPlayerList.where((player) {
@@ -589,8 +608,107 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
   }
 }
 
+
+
+class PlayerDetailsScreen extends StatelessWidget {
+  final Map<String, dynamic> player;
+
+  PlayerDetailsScreen({required this.player});
+
+  @override
+  Widget build(BuildContext context) {
+    final logoUrl = player['logo_url'] as String?;
+    final defaultImage = AssetImage('assets/playerImage.png');
+    final imageUrl = logoUrl ?? '';
+
+    return Theme(
+      data: ThemeData(
+        colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: Colors.red,
+        ),
+      ),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(player['short_name'] as String), // Ensure short_name is a String
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.transparent,
+                      child: imageUrl.isNotEmpty
+                          ? Image.network(
+                              imageUrl,
+                              errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                                return Image(image: defaultImage);
+                              },
+                            )
+                          : Image(image: defaultImage),
+                    ),
+                    SizedBox(width: 16),
+                    Text(
+                      player['title'] as String, // Ensure title is a String
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      _buildPlayerDetailTile('Birthdate:', player['birthdate'].toString()),
+                      _buildPlayerDetailTile('Batting Style:', player['batting_style']),
+                      _buildPlayerDetailTile('Bowling Style:', player['bowling_style']),
+                      _buildPlayerDetailTile('Fielding Position:', player['fielding_position']),
+                      _buildPlayerDetailTile('Recent Match:', player['recent_match']),
+                      _buildPlayerDetailTile('Recent Appearance:', player['recent_appearance']),
+                      _buildPlayerDetailTile('Fantasy Player Rating:', player['fantasy_player_rating'].toString()),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlayerDetailTile(String label, dynamic value) {
+    // Check if value is not null and is of type String
+    final displayValue = (value != null && value is String) ? value : 'N/A';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Text(
+            '$label',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(width: 8),
+          Text(displayValue),
+        ],
+      ),
+    );
+  }
+}
+
 class PreviewScreen extends StatelessWidget {
   final Set<Map<String, dynamic>> selectedPlayers;
+  final AssetImage defaultImage = AssetImage('assets/playerImage.png');
+  final double playgroundRadius = 200.0; // Adjust the playground radius as needed
 
   PreviewScreen({required this.selectedPlayers});
 
@@ -600,18 +718,45 @@ class PreviewScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text("Selected Players"),
       ),
-      body: ListView(
-        children: selectedPlayers.map((player) {
-          return ListTile(
-            title: Text(player['short_name'] ?? ''),
-            subtitle: Text(player['nationality']?.toUpperCase() ?? ''),
-            trailing: Image.network(
-              player['logo_url'] ?? '',
-              height: 50,
-              width: 50,
-            ),
-          );
-        }).toList(),
+      body: Stack(
+        children: [
+          // Background image of the cricket playground
+          Image.asset(
+            'assets/cricketGround.png', // Replace with the actual path to your image asset
+            fit: BoxFit.cover,
+            height: double.infinity,
+            width: double.infinity,
+          ),
+          // Overlay the selected players on top of the background
+          for (int i = 0; i < selectedPlayers.length; i++)
+            _buildPlayerMarker(selectedPlayers.elementAt(i), i),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlayerMarker(Map<String, dynamic> player, int index) {
+    double angle = 2 * math.pi * index / selectedPlayers.length;
+    double top = playgroundRadius * math.sin(angle) + playgroundRadius;
+    double left = playgroundRadius * math.cos(angle) + playgroundRadius;
+
+    return Positioned(
+      top: top,
+      left: left,
+      child: Column(
+        children: [
+          Image.network(
+            player['logo_url'] ?? '',
+            height: 50,
+            width: 50,
+            errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+              // Use default image if network image fails to load
+              return Image(image: defaultImage, height: 50, width: 50);
+            },
+          ),
+          SizedBox(height: 10), // Adjust spacing between image and text
+          Text(player['short_name'] ?? ''),
+        ],
       ),
     );
   }
