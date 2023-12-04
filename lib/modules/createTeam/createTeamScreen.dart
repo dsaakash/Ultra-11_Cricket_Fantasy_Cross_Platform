@@ -35,12 +35,9 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
   String time = '';
   Set<Map<String, dynamic>> selectedPlayers = Set<Map<String, dynamic>>();
   Map<String, bool> playerPlayingStatus = {};
-
-  // Modifications
   List playersTeamOne = [];
   List playersTeamTwo = [];
   List playersIsPlayingOrNot = [];
-
   @override
   void initState() {
     super.initState();
@@ -57,15 +54,11 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
       country2Flag = prefs.getString('country2Flag') ?? '';
       country2Name = prefs.getString('country2Name')?.toUpperCase() ?? '';
       time = prefs.getString('time') ?? '';
-
       if (cid != null && matchId != null) {
         try {
           final List<Map<String, dynamic>> players =
               await getPlayers(cid, matchId);
           final response = await getMatchDetails(matchId);
-
-          print(" --------- 1 ");
-
           setState(() {
             allPlayerList = players;
             isDataLoading = false;
@@ -90,32 +83,20 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
                     (player['playing_role'] ?? '').toLowerCase() == "bowl")
                 .length;
           });
-          print(" --------- 11 ");
           if (matchId != null) {
-            print(" --------- 111 ");
             final playing11Response = await getPlaying11(matchId);
-            print(" --------- 1111 ");
             if (playing11Response != null) {
               setState(() {
                 playing11 = playing11Response;
-                print(playing11);
                 playersIsPlayingOrNot = playing11Response;
-                print(playersIsPlayingOrNot);
-                // for (var player in allPlayerList) {
-                //   final isPlaying = playing11.any((playingPlayer) =>
-                //       playingPlayer['name'] == player['name']);
-                //   playerPlayingStatus[player['name']] = isPlaying;
-                // }
               });
             }
           }
           checkIfPlayersAndPlayingState();
         } on DioError catch (e) {
           print("DioException 1 : $e");
-          // Handle DioError
         } catch (e) {
           print("Error fetching data: 2  $e");
-          // Handle other errors
         }
       }
     } on DioError catch (e) {
@@ -131,13 +112,11 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
     final String query =
         "https://rest.entitysport.com/v2/competitions/$cid/squads/$matchId?token=4c5b78057cd282704f2a9dd8ea556ee2";
     final Map<String, dynamic> headers = {"Content-Type": "application/json"};
-
     try {
       final response = await Dio().get(
         query,
         options: Options(headers: headers),
       );
-
       if (response.statusCode == 200) {
         final List<dynamic>? squads = response.data?['response']['squads'];
         if (squads != null) {
@@ -180,7 +159,6 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
       }
       return null;
     } catch (e) {
-      print("Error fetching match details: $e");
       return null;
     }
   }
@@ -217,143 +195,70 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
     }
   }
 
-  // checkIfPlayersAndPlayingState() {
-  //   print("====================== START =====================");
-  //   print(playersTeamOne);
-  //   print(playersTeamTwo);
-  //   print(playersIsPlayingOrNot);
-  //   // playersIsPlayingOrNot = [];
-  //   // Iterate through playersTeamOne
-  //   for (var i = 0; i < playersTeamOne.length; i++) {
-  //     var playerTeamOne = playersTeamOne[i];
-  //     var pidTeamOne = playerTeamOne['pid'];
-
-  //     // Set isPlaying to true for the first player (for testing purposes)
-  //     // var isPlayingTeamOne = i == 0;
-
-  //     // Check if pidTeamOne is in playersIsPlayingOrNot
-  //     var isPlayingTeamOne = playersIsPlayingOrNot
-  //         .any((player) => player['player_id'] == pidTeamOne);
-
-  //     // Add the isPlaying property to the player object
-  //     playerTeamOne['isPlaying'] = isPlayingTeamOne;
-
-  //     // Print the result
-  //     print('Player with pid $pidTeamOne is playing: $isPlayingTeamOne');
-  //   }
-
-  //   // Iterate through playersTeamTwo
-  //   for (var i = 0; i < playersTeamTwo.length; i++) {
-  //     var playerTeamTwo = playersTeamTwo[i];
-  //     var pidTeamTwo = playerTeamTwo['pid'];
-
-  //     // Check if pidTeamTwo is in playersIsPlayingOrNot
-  //     var isPlayingTeamTwo = playersIsPlayingOrNot
-  //         .any((player) => player['player_id'] == pidTeamTwo);
-
-  //     // Add the isPlaying property to the player object
-  //     playerTeamTwo['isPlaying'] = isPlayingTeamTwo;
-
-  //     // Print the result
-  //     print('Player with pid $pidTeamTwo is playing: $isPlayingTeamTwo');
-  //   }
-  //   print("====================== STOP =====================");
-  // }
-
   void checkIfPlayersAndPlayingState() {
-  print("====================== START =====================");
-
-  // Iterate through playersTeamOne
-  for (var i = 0; i < playersTeamOne.length; i++) {
-    var playerTeamOne = playersTeamOne[i];
-    var pidTeamOne = playerTeamOne['pid'];
-
-    // Check if pidTeamOne is in isplaying data and if the player is in playing eleven
-    var isPlayingTeamOne = playersIsPlayingOrNot
-        .any((playingPlayer) => playingPlayer['player_id'] == pidTeamOne.toString() && playingPlayer['playing11'] == 'true');
-
-    // Add the isPlaying property to the player object
-    playerTeamOne['isPlaying'] = isPlayingTeamOne;
-
-    // Print the result
-    print('Player with pid $pidTeamOne is playing: $isPlayingTeamOne');
+    for (var i = 0; i < playersTeamOne.length; i++) {
+      var playerTeamOne = playersTeamOne[i];
+      var pidTeamOne = playerTeamOne['pid'];
+      var isPlayingTeamOne = playersIsPlayingOrNot.any((playingPlayer) =>
+          playingPlayer['player_id'] == pidTeamOne.toString() &&
+          playingPlayer['playing11'] == 'true');
+      playerTeamOne['isPlaying'] = isPlayingTeamOne;
+    }
+    for (var i = 0; i < playersTeamTwo.length; i++) {
+      var playerTeamTwo = playersTeamTwo[i];
+      var pidTeamTwo = playerTeamTwo['pid'];
+      var isPlayingTeamTwo = playersIsPlayingOrNot.any((playingPlayer) =>
+          playingPlayer['player_id'] == pidTeamTwo.toString() &&
+          playingPlayer['playing11'] == 'true');
+      playerTeamTwo['isPlaying'] = isPlayingTeamTwo;
+    }
   }
-
-  // Iterate through playersTeamTwo
-  for (var i = 0; i < playersTeamTwo.length; i++) {
-    var playerTeamTwo = playersTeamTwo[i];
-    var pidTeamTwo = playerTeamTwo['pid'];
-
-    // Check if pidTeamTwo is in isplaying data and if the player is in playing eleven
-    var isPlayingTeamTwo = playersIsPlayingOrNot
-        .any((playingPlayer) => playingPlayer['player_id'] == pidTeamTwo.toString() && playingPlayer['playing11'] == 'true');
-
-    // Add the isPlaying property to the player object
-    playerTeamTwo['isPlaying'] = isPlayingTeamTwo;
-
-    // Print the result
-    print('Player with pid $pidTeamTwo is playing: $isPlayingTeamTwo');
-  }
-
-  print("====================== STOP =====================");
-}
-
 
   Widget _buildPlayerAvatar(Map<String, dynamic> player) {
     final logoUrl = player['logo_url'] as String?;
     final defaultImage = AssetImage('assets/playerImage.png');
     final imageUrl = logoUrl ?? '';
-
-
     return GestureDetector(
-    onTap: () {
-      // Navigate to the player details screen
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PlayerDetailsScreen(player: player),
-        ),
-      );
-    },
-
-
-    
-
-    child: Column(
-      children: [
-        CircleAvatar(
-          radius: 25,
-          backgroundColor: Colors.transparent,
-          child: imageUrl.isNotEmpty
-              ? Image.network(
-                  imageUrl,
-                  errorBuilder: (BuildContext context, Object error,
-                      StackTrace? stackTrace) {
-                    return Image(image: defaultImage);
-                  },
-                )
-              : Image(image: defaultImage),
-        ),
-        SizedBox(height: 4),
-        Text(
-          player['isPlaying'] == true ? "Playing" : "Not Playing",
-          style: TextStyle(
-            color: player['isPlaying'] == true ? Colors.green : Colors.red,
-            fontSize: 12,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PlayerDetailsScreen(player: player),
           ),
-        ),
-      ],
-    ),
+        );
+      },
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 25,
+            backgroundColor: Colors.transparent,
+            child: imageUrl.isNotEmpty
+                ? Image.network(
+                    imageUrl,
+                    errorBuilder: (BuildContext context, Object error,
+                        StackTrace? stackTrace) {
+                      return Image(image: defaultImage);
+                    },
+                  )
+                : Image(image: defaultImage),
+          ),
+          SizedBox(height: 4),
+          Text(
+            player['isPlaying'] == true ? "Playing" : "Not Playing",
+            style: TextStyle(
+              color: player['isPlaying'] == true ? Colors.green : Colors.red,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
     );
   }
-
-
 
   Widget playerListView(String role, String header) {
     List<Map<String, dynamic>> filteredPlayers = allPlayerList.where((player) {
       return (player['playing_role'] ?? '').toLowerCase() == role.toLowerCase();
     }).toList();
-
     return filteredPlayers.isEmpty
         ? Center(
             child: Text("No $role players available."),
@@ -362,7 +267,7 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Card(
-                color: Colors.grey[300], // Light Grey Background
+                color: Colors.grey[300],
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Center(
@@ -441,20 +346,13 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
 
   Future<bool> getPlayingStatus(Map<String, dynamic> player) async {
     final String playerName = player['pid'].toString();
-    // Check if player data is available
     final bool isPlayerDataAvailable =
         playersData.any((data) => data['pid'] == playerName);
-
     if (!isPlayerDataAvailable) {
-      // Player data is not available, return false
       return false;
     }
-
-    // Assuming playing11 is a list of Map<String, dynamic> containing playing 11 data
     final bool isInPlaying11 = playersPlayingData
         .any((playingPlayer) => playingPlayer['player_id'] == playerName);
-
-    // Return true if the player is present in playing11
     return isInPlaying11;
   }
 
@@ -482,7 +380,6 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
         }
       }
       if (selectedPlayers.length > 11) {
-        // Display a prompt when more than 11 players are selected
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -505,6 +402,7 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
     });
   }
 
+  int selectedPlayerCount = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -584,31 +482,61 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
               child: Text("Preview"),
             ),
             SizedBox(height: 10),
-            ElevatedButton(
+            Column(
+  children: [
+    Visibility(
+      visible: selectedPlayers.length != 11,
+      child: Text(
+        '${selectedPlayers.length} players selected',
+        style: TextStyle(fontSize: 16),
+      ),
+    ),
+    Padding(
+      padding: EdgeInsets.only(top: 40), // Increase top padding here
+      child: Column(
+        children: [
+          Visibility(
+            visible: selectedPlayers.length == 11,
+            child: ElevatedButton(
               onPressed: () {
-                if (selectedPlayers.length == 11) {
-                  // Continue button logic here
-                }
+                // Your code when the button is pressed
               },
               child: Text("Continue"),
               style: ButtonStyle(
-                backgroundColor:
-                    MaterialStateProperty.resolveWith<Color>((states) {
-                  if (selectedPlayers.length == 11) {
-                    return Colors.blue;
-                  }
-                  return Colors.grey;
+                backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+                  return Colors.blue;
                 }),
               ),
             ),
+          ),
+          Visibility(
+            visible: selectedPlayers.length != 11,
+            child: ElevatedButton(
+              onPressed: selectedPlayers.length == 11 ? null : () {
+                // Your code when the button is pressed
+              },
+              child: Text("Preview"),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+                  return Colors.blue;
+                }),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  ],
+),
+
+
           ],
         ),
       ),
+     
     );
   }
 }
-
-
 
 class PlayerDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> player;
@@ -629,7 +557,8 @@ class PlayerDetailsScreen extends StatelessWidget {
       ),
       child: Scaffold(
         appBar: AppBar(
-          title: Text(player['short_name'] as String), // Ensure short_name is a String
+          title: Text(
+              player['short_name'] as String), // Ensure short_name is a String
         ),
         body: SingleChildScrollView(
           child: Padding(
@@ -645,7 +574,8 @@ class PlayerDetailsScreen extends StatelessWidget {
                       child: imageUrl.isNotEmpty
                           ? Image.network(
                               imageUrl,
-                              errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                              errorBuilder: (BuildContext context, Object error,
+                                  StackTrace? stackTrace) {
                                 return Image(image: defaultImage);
                               },
                             )
@@ -654,7 +584,8 @@ class PlayerDetailsScreen extends StatelessWidget {
                     SizedBox(width: 16),
                     Text(
                       player['title'] as String, // Ensure title is a String
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -667,13 +598,20 @@ class PlayerDetailsScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      _buildPlayerDetailTile('Birthdate:', player['birthdate'].toString()),
-                      _buildPlayerDetailTile('Batting Style:', player['batting_style']),
-                      _buildPlayerDetailTile('Bowling Style:', player['bowling_style']),
-                      _buildPlayerDetailTile('Fielding Position:', player['fielding_position']),
-                      _buildPlayerDetailTile('Recent Match:', player['recent_match']),
-                      _buildPlayerDetailTile('Recent Appearance:', player['recent_appearance']),
-                      _buildPlayerDetailTile('Fantasy Player Rating:', player['fantasy_player_rating'].toString()),
+                      _buildPlayerDetailTile(
+                          'Birthdate:', player['birthdate'].toString()),
+                      _buildPlayerDetailTile(
+                          'Batting Style:', player['batting_style']),
+                      _buildPlayerDetailTile(
+                          'Bowling Style:', player['bowling_style']),
+                      _buildPlayerDetailTile(
+                          'Fielding Position:', player['fielding_position']),
+                      _buildPlayerDetailTile(
+                          'Recent Match:', player['recent_match']),
+                      _buildPlayerDetailTile(
+                          'Recent Appearance:', player['recent_appearance']),
+                      _buildPlayerDetailTile('Fantasy Player Rating:',
+                          player['fantasy_player_rating'].toString()),
                     ],
                   ),
                 ),
@@ -708,37 +646,164 @@ class PlayerDetailsScreen extends StatelessWidget {
 class PreviewScreen extends StatelessWidget {
   final Set<Map<String, dynamic>> selectedPlayers;
   final AssetImage defaultImage = AssetImage('assets/playerImage.png');
-  final double playgroundRadius = 200.0; // Adjust the playground radius as needed
+  final double playgroundRadius = 180.0;
+  final double angleIncrement = 2 * math.pi / 11;
 
   PreviewScreen({required this.selectedPlayers});
 
   @override
   Widget build(BuildContext context) {
+    final MediaQueryData mediaQueryData = MediaQuery.of(context);
+    final double screenWidth = mediaQueryData.size.width;
+    final double screenHeight = mediaQueryData.size.height;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Selected Players"),
       ),
       body: Stack(
         children: [
-          // Background image of the cricket playground
           Image.asset(
-            'assets/cricketGround.png', // Replace with the actual path to your image asset
+            'assets/cricketGround.png',
             fit: BoxFit.cover,
             height: double.infinity,
             width: double.infinity,
           ),
-          // Overlay the selected players on top of the background
-          for (int i = 0; i < selectedPlayers.length; i++)
-            _buildPlayerMarker(selectedPlayers.elementAt(i), i),
+          _buildPlayerGroup(
+            selectedPlayers,
+            'wk',
+            screenWidth,
+            screenHeight,
+            angleIncrement,
+          ),
+          _buildPlayerGroup(
+            selectedPlayers,
+            'bat',
+            screenWidth,
+            screenHeight,
+            angleIncrement,
+          ),
+          _buildPlayerGroup(
+            selectedPlayers,
+            'all',
+            screenWidth,
+            screenHeight,
+            angleIncrement,
+          ),
+          _buildPlayerGroup(
+            selectedPlayers,
+            'bowl',
+            screenWidth,
+            screenHeight,
+            angleIncrement,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildPlayerMarker(Map<String, dynamic> player, int index) {
-    double angle = 2 * math.pi * index / selectedPlayers.length;
-    double top = playgroundRadius * math.sin(angle) + playgroundRadius;
-    double left = playgroundRadius * math.cos(angle) + playgroundRadius;
+  Widget _buildPlayerGroup(
+    Set<Map<String, dynamic>> players,
+    String playingRole,
+    double screenWidth,
+    double screenHeight,
+    double angleIncrement,
+  ) {
+    List<Map<String, dynamic>> playersInGroup = players
+        .where((player) =>
+            (player['playing_role'] ?? '').toLowerCase() == playingRole)
+        .toList();
+
+    double radius =
+        screenHeight < screenWidth ? screenHeight * 0.25 : screenWidth * 0.25;
+
+    double top;
+
+    switch (playingRole.toLowerCase()) {
+      case 'wk':
+        top = screenHeight * 0.25 - radius;
+        break;
+      case 'bat':
+        top = screenHeight * 0.35 - radius;
+        break;
+      case 'bowl':
+        top = screenHeight * 0.65 - radius;
+        break;
+      case 'all':
+        top = screenHeight * 0.75 - radius;
+        break;
+      default:
+        // Handle other playing roles if needed
+        top = screenHeight * 0.5 - radius;
+    }
+
+    double totalWidth =
+        playersInGroup.length * 40.0; // Adjust the width as needed
+
+    double left = screenWidth * 0.44 - totalWidth / 2;
+
+    return Positioned(
+      top: top,
+      left: left,
+      child: Column(
+        children: [
+          Text(
+            getPlayingRoleTitle(
+                playingRole), // Define getPlayingRoleTitle function
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              for (int i = 0; i < playersInGroup.length; i++)
+                Row(
+                  children: [
+                    _buildPlayerMarker(
+                      playersInGroup.elementAt(i),
+                      i,
+                      angleIncrement * i,
+                      screenWidth,
+                      screenHeight,
+                    ),
+                    SizedBox(width: 8.0), // Adjust the spacing between players
+                  ],
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  String getPlayingRoleTitle(String playingRole) {
+    switch (playingRole.toLowerCase()) {
+      case 'wk':
+        return 'Wicket Keepers';
+      case 'bat':
+        return 'Batsman';
+      case 'bowl':
+        return 'Bowlers';
+      case 'all':
+        return 'All-rounders';
+      default:
+        return 'Other Players';
+    }
+  }
+
+  Widget _buildPlayerMarker(
+    Map<String, dynamic> player,
+    int index,
+    double angle,
+    double screenWidth,
+    double screenHeight,
+  ) {
+    double radius =
+        screenHeight < screenWidth ? screenHeight * 0.4 : screenWidth * 0.4;
+    double top = radius * math.sin(angle) + screenHeight * 0.5;
+    double left = radius * math.cos(angle) + screenWidth * 0.5;
 
     return Positioned(
       top: top,
@@ -747,14 +812,14 @@ class PreviewScreen extends StatelessWidget {
         children: [
           Image.network(
             player['logo_url'] ?? '',
-            height: 50,
-            width: 50,
-            errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
-              // Use default image if network image fails to load
-              return Image(image: defaultImage, height: 50, width: 50);
+            height: 30,
+            width: 30,
+            errorBuilder:
+                (BuildContext context, Object error, StackTrace? stackTrace) {
+              return Image(image: defaultImage, height: 30, width: 30);
             },
           ),
-          SizedBox(height: 10), // Adjust spacing between image and text
+          SizedBox(height: 4),
           Text(player['short_name'] ?? ''),
         ],
       ),
