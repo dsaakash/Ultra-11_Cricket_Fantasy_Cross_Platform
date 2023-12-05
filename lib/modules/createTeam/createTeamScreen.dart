@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math' as math;
+import 'dart:ui';
 
 class Player {
   final String name;
@@ -401,8 +402,8 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
       }
     });
   }
+   int selectedPlayerCount = 0;
 
-  int selectedPlayerCount = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -469,75 +470,120 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
                       ),
                     ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        PreviewScreen(selectedPlayers: selectedPlayers),
+            SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PreviewScreen(
+                          selectedPlayers: selectedPlayers,
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.green,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
                   ),
-                );
-              },
-              child: Text("Preview"),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 20.0,
+                    ),
+                    child: Text(
+                      "Preview",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18.0,
+                      ),
+                    ),
+                  ),
+                ),
+                AnimatedOpacity(
+                  duration: Duration(milliseconds: 300),
+                  opacity: selectedPlayers.length == 11 ? 1.0 : 0.5,
+                  child: ElevatedButton(
+                    onPressed: selectedPlayers.length == 11
+                        ? () {
+                            // Your code when the "Continue" button is pressed
+                          }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10.0,
+                        horizontal: 20.0,
+                      ),
+                      child: Text(
+                        "Continue",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 10),
             Column(
-  children: [
-    Visibility(
-      visible: selectedPlayers.length != 11,
-      child: Text(
-        '${selectedPlayers.length} players selected',
-        style: TextStyle(fontSize: 16),
-      ),
-    ),
-    Padding(
-      padding: EdgeInsets.only(top: 40), // Increase top padding here
-      child: Column(
-        children: [
-          Visibility(
-            visible: selectedPlayers.length == 11,
-            child: ElevatedButton(
-              onPressed: () {
-                // Your code when the button is pressed
-              },
-              child: Text("Continue"),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
-                  return Colors.blue;
-                }),
-              ),
+              children: [
+                Visibility(
+                  visible: selectedPlayers.length != 11,
+                  child: Text(
+                    '${selectedPlayers.length} players selected',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 40),
+                  child: ElevatedButton(
+                    onPressed: selectedPlayers.length == 11
+                        ? null
+                        : () {
+                            // Your code when the button is pressed
+                          },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10.0,
+                        horizontal: 20.0,
+                      ),
+                      child: Text(
+                        "Preview",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          Visibility(
-            visible: selectedPlayers.length != 11,
-            child: ElevatedButton(
-              onPressed: selectedPlayers.length == 11 ? null : () {
-                // Your code when the button is pressed
-              },
-              child: Text("Preview"),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
-                  return Colors.blue;
-                }),
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),
-  ],
-),
-
-
           ],
         ),
       ),
-     
     );
   }
 }
-
 class PlayerDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> player;
 
@@ -777,6 +823,10 @@ class PreviewScreen extends StatelessWidget {
       ),
     );
   }
+
+
+
+
 
   String getPlayingRoleTitle(String playingRole) {
     switch (playingRole.toLowerCase()) {
