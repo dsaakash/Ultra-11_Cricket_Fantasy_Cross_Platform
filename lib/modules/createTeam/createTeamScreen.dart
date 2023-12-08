@@ -402,89 +402,129 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
       }
     });
   }
-   int selectedPlayerCount = 0;
+  int selectedPlayerCount = 0;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(country1Name, style: TextStyle(fontSize: 14)),
-                Text(country2Name, style: TextStyle(fontSize: 14)),
-                Text(time, style: TextStyle(fontSize: 12)),
-              ],
-            ),
-            Image.network(
-              country1Flag,
-              height: 40,
-              width: 40,
-            ),
-            Image.network(
-              country2Flag,
-              height: 40,
-              width: 40,
-            ),
-          ],
-        ),
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(country1Name, style: TextStyle(fontSize: 14)),
+              Text(country2Name, style: TextStyle(fontSize: 14)),
+              Text(time, style: TextStyle(fontSize: 12)),
+            ],
+          ),
+          Image.network(
+            country1Flag,
+            height: 40,
+            width: 40,
+          ),
+          Image.network(
+            country2Flag,
+            height: 40,
+            width: 40,
+          ),
+        ],
       ),
-      body: ModalProgressHUD(
-        inAsyncCall: isDataLoading,
-        child: Column(
-          children: [
-            Expanded(
-              child: isDataLoading
-                  ? Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : DefaultTabController(
-                      length: 4,
-                      child: Column(
-                        children: [
-                          TabBar(
-                            labelColor: Colors.black,
-                            unselectedLabelColor: Colors.grey,
-                            tabs: [
-                              Tab(text: "WK"),
-                              Tab(text: "BAT"),
-                              Tab(text: "AR"),
-                              Tab(text: "BOWL"),
+    ),
+    body: ModalProgressHUD(
+      inAsyncCall: isDataLoading,
+      child: Column(
+        children: [
+          Expanded(
+            child: isDataLoading
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : DefaultTabController(
+                    length: 4,
+                    child: Column(
+                      children: [
+                        TabBar(
+                          labelColor: Colors.black,
+                          unselectedLabelColor: Colors.grey,
+                          tabs: [
+                            Tab(text: "WK"),
+                            Tab(text: "BAT"),
+                            Tab(text: "AR"),
+                            Tab(text: "BOWL"),
+                          ],
+                        ),
+                        Expanded(
+                          child: TabBarView(
+                            children: [
+                              playerListView("wk", "Wicket-keepers (Pick 2)"),
+                              playerListView("bat", "Batsmen (Pick 3-5)"),
+                              playerListView("all", "All-rounders (Pick 1-3)"),
+                              playerListView("bowl", "Bowlers (Pick 3-5)"),
                             ],
                           ),
-                          Expanded(
-                            child: TabBarView(
-                              children: [
-                                playerListView("wk", "Wicket-keepers (Pick 2)"),
-                                playerListView("bat", "Batsmen (Pick 3-5)"),
-                                playerListView(
-                                    "all", "All-rounders (Pick 1-3)"),
-                                playerListView("bowl", "Bowlers (Pick 3-5)"),
-                              ],
-                            ),
-                          ),
-                        ],
+                        ),
+                      ],
+                    ),
+                  ),
+          ),
+          SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PreviewScreen(
+                        selectedPlayers: selectedPlayers,
                       ),
                     ),
-            ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PreviewScreen(
-                          selectedPlayers: selectedPlayers,
-                        ),
-                      ),
-                    );
-                  },
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.green,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10.0,
+                    horizontal: 20.0,
+                  ),
+                  child: Text(
+                    "Preview",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18.0,
+                    ),
+                  ),
+                ),
+              ),
+              AnimatedOpacity(
+                duration: Duration(milliseconds: 300),
+                opacity: selectedPlayers.length == 11 ? 1.0 : 0.5,
+                child: ElevatedButton(
+                  onPressed: selectedPlayers.length == 11
+                      ? ()  {
+                          // Your code when the "Continue" button is pressed
+                          print(selectedPlayers);
+
+
+                           Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MatchListScreen(
+                                        selectedPlayers: selectedPlayers.toList(), // Convert Set to List
+                                      ),
+                                    ),
+                                  );
+ 
+                        }
+                      : null,
                   style: ElevatedButton.styleFrom(
                     primary: Colors.green,
                     shape: RoundedRectangleBorder(
@@ -497,7 +537,7 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
                       horizontal: 20.0,
                     ),
                     child: Text(
-                      "Preview",
+                      "Continue",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18.0,
@@ -505,85 +545,306 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
                     ),
                   ),
                 ),
-                AnimatedOpacity(
-                  duration: Duration(milliseconds: 300),
-                  opacity: selectedPlayers.length == 11 ? 1.0 : 0.5,
-                  child: ElevatedButton(
-                    onPressed: selectedPlayers.length == 11
-                        ? () {
-                            // Your code when the "Continue" button is pressed
-                          }
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.green,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10),
+          Column(
+            children: [
+              Visibility(
+                visible: selectedPlayers.length != 11,
+                child: Text(
+                  '${selectedPlayers.length} players selected',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 40),
+                child: ElevatedButton(
+                  onPressed: selectedPlayers.length == 11
+                      ? null
+                      : () {
+                          // Your code when the button is pressed
+                         
+                         
+                        },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.green,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 10.0,
-                        horizontal: 20.0,
-                      ),
-                      child: Text(
-                        "Continue",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18.0,
-                        ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 20.0,
+                    ),
+                    child: Text(
+                      "Select Captains",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18.0,
                       ),
                     ),
                   ),
                 ),
-              ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
+}
+
+
+
+
+
+
+// class MatchListScreen extends StatelessWidget {
+//   final List<Map<String, dynamic>> selectedPlayers;
+
+//   MatchListScreen({required this.selectedPlayers});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text("Match List"),
+//       ),
+//       body: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           // Display selected players with their details
+//           // You can use DataTable or any other widget based on your preference
+//           // Example:
+//           DataTable(
+//             columns: [
+//               DataColumn(label: Text('Player')),
+//               DataColumn(label: Text('Points')),
+//               DataColumn(label: Text('Credits')),
+//             ],
+//             rows: selectedPlayers.map((player) {
+//               return DataRow(
+//                 cells: [
+//                   DataCell(Text(player['short_name'] ?? '')),
+//                   DataCell(Text("0.0")),
+//                   DataCell(Text("${player['fantasy_player_rating']}")),
+//                 ],
+//               );
+//             }).toList(),
+//           ),
+//           ElevatedButton(
+//             onPressed: () {
+//               Navigator.push(
+//                 context,
+//                 MaterialPageRoute(
+//                   builder: (context) => SelectCaptainsScreen(
+//                     selectedPlayers: selectedPlayers,
+//                   ),
+//                 ),
+//               );
+//             },
+//             child: Text("Select Captains"),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+class MatchListScreen extends StatelessWidget {
+  final List<Map<String, dynamic>> selectedPlayers;
+  final defaultImage = AssetImage('assets/playerImage.png');
+
+  MatchListScreen({required this.selectedPlayers});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Match List"),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildRoleSection('Wicket-keepers (Pick 2)'),
+                  buildRoleSection('Batsmen (Pick 3-5)'),
+                  buildRoleSection('All-rounders (Pick 1-3)'),
+                  buildRoleSection('Bowlers (Pick 3-5)'),
+                ],
+              ),
             ),
-            SizedBox(height: 10),
-            Column(
-              children: [
-                Visibility(
-                  visible: selectedPlayers.length != 11,
-                  child: Text(
-                    '${selectedPlayers.length} players selected',
-                    style: TextStyle(fontSize: 16),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SelectCaptainsScreen(
+                    selectedPlayers: selectedPlayers,
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 40),
-                  child: ElevatedButton(
-                    onPressed: selectedPlayers.length == 11
-                        ? null
-                        : () {
-                            // Your code when the button is pressed
-                          },
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.green,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 10.0,
-                        horizontal: 20.0,
-                      ),
-                      child: Text(
-                        "Preview",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              );
+            },
+            child: Text("Select Captains"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildRoleSection(String roleTitle) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        buildRoleTitle(roleTitle),
+        DataTable(
+          columnSpacing: 10.0, // Adjust spacing between columns
+          columns: [
+            DataColumn(label: Text('Player')),
+            DataColumn(label: Text('Points')),
+            DataColumn(label: Text('Credits')),
+            DataColumn(label: Text('C')),
+            DataColumn(label: Text('VC')),
+            DataColumn(label: Text('UC')),
+            DataColumn(label: Text('TC')),
           ],
+          rows: selectedPlayers
+              .where((player) => player['playing_role'] == getRoleFromTitle(roleTitle))
+              .map((player) {
+            return DataRow(
+              cells: [
+                DataCell(Text(player['short_name'] ?? '')),
+                DataCell(Text("0.0")),
+                DataCell(Text("${player['fantasy_player_rating']}")),
+                DataCell(buildCircularIcon('C')),
+                DataCell(buildCircularIcon('VC')),
+                DataCell(buildCircularIcon('UC')),
+                DataCell(buildCircularIcon('TC')),
+              ],
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget buildRoleTitle(String title) {
+    return Container(
+      padding: EdgeInsets.all(10.0),
+      margin: EdgeInsets.symmetric(vertical: 10.0),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.black),
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Center(
+        child: Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18.0,
+          ),
         ),
       ),
     );
   }
+
+  Widget buildCircularIcon(String label) {
+    return Container(
+      width: 30.0,
+      height: 30.0,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.blue, // You can customize the color
+      ),
+      child: Center(
+        child: Text(
+          label,
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  String getRoleFromTitle(String title) {
+    // Add logic to return the appropriate role based on the title
+    switch (title) {
+      case 'Wicket-keepers (Pick 2)':
+        return 'wk';
+      case 'Batsmen (Pick 3-5)':
+        return 'bat';
+      case 'All-rounders (Pick 1-3)':
+        return 'all';
+      case 'Bowlers (Pick 3-5)':
+        return 'bowl';
+      default:
+        return '';
+    }
+  }
 }
+
+
+
+
+
+
+class SelectCaptainsScreen extends StatelessWidget {
+  final List<Map<String, dynamic>> selectedPlayers;
+
+  SelectCaptainsScreen({required this.selectedPlayers});
+
+  @override
+  Widget build(BuildContext context) {
+    // Implement your UI to display selected players and select captains
+    // You can use a similar approach as in the MatchListScreen
+    // Example:
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Select Captains"),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Display selected players with their details
+          DataTable(
+            columns: [
+              DataColumn(label: Text('Player')),
+              DataColumn(label: Text('Points')),
+              DataColumn(label: Text('Credits')),
+            ],
+            rows: selectedPlayers.map((player) {
+              return DataRow(
+                cells: [
+                  DataCell(Text(player['short_name'] ?? '')),
+                  DataCell(Text("0.0")),
+                  DataCell(Text("${player['fantasy_player_rating']}")),
+                ],
+              );
+            }).toList(),
+          ),
+          // Implement your logic to select captains here
+          // You can use buttons, checkboxes, or any other UI element
+        ],
+      ),
+    );
+  }
+}
+
+
+
+
+
+
 class PlayerDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> player;
 
@@ -688,6 +949,9 @@ class PlayerDetailsScreen extends StatelessWidget {
     );
   }
 }
+
+
+
 
 class PreviewScreen extends StatelessWidget {
   final Set<Map<String, dynamic>> selectedPlayers;
