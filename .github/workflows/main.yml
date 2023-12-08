@@ -1,7 +1,6 @@
 on:
   push:
     branches:
-      - main
       - V1_Ultra11
 
 name: Build My Apps
