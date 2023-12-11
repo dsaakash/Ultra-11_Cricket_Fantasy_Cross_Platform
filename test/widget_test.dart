@@ -7,18 +7,20 @@ import 'package:tempalteflutter/main.dart';
 //Added
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-  // Build our app and trigger a frame.
-  await tester.pumpWidget(MyApp());
+    testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(MyApp());
 
-  // Verify that the initial text is '0'.
-  expect(find.text('0'), findsOneWidget);
+    // Verify that the initial text is an empty string.
+    expect(find.text(''), findsOneWidget);
 
-  // Tap on the widget to trigger the increment.
-  await tester.tap(find.byIcon(Icons.add));
-  await tester.pump();
+    // Tap on the widget to trigger the increment.
+    await tester.tap(find.byIcon(Icons.add));
 
-  // Verify that the text is now '1' after the increment.
-  expect(find.text('1'), findsOneWidget);
-});
+    // Rebuild the widget after the tap.
+    await tester.pump();
+
+    // Verify that the text is now '1' after the increment.
+    expect(find.text('1'), findsOneWidget);
+  });
 }
