@@ -101,6 +101,10 @@ class Players {
     playing11 = json['playing11'];
   }
 
+  get isCaptain => null;
+
+  get isViceCaptain => null;
+
   
 
   Map<String, dynamic> toJson() {
