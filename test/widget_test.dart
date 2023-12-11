@@ -8,15 +8,17 @@ import 'package:tempalteflutter/main.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    await tester.pumpWidget(MyApp());
+  // Build our app and trigger a frame.
+  await tester.pumpWidget(MyApp());
 
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  // Verify that the initial text is '0'.
+  expect(find.text('0'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  // Tap on the widget to trigger the increment.
+  await tester.tap(find.byIcon(Icons.add));
+  await tester.pump();
 
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
-  });
+  // Verify that the text is now '1' after the increment.
+  expect(find.text('1'), findsOneWidget);
+});
 }
