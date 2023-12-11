@@ -517,7 +517,7 @@ Widget build(BuildContext context) {
                            Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => MatchListScreen(
+                                      builder: (context) => SelectCaptainScreen(
                                         selectedPlayers: selectedPlayers.toList(), // Convert Set to List
                                       ),
                                     ),
@@ -600,102 +600,39 @@ Widget build(BuildContext context) {
 
 
 
-
-
-
-// class MatchListScreen extends StatelessWidget {
-//   final List<Map<String, dynamic>> selectedPlayers;
-
-//   MatchListScreen({required this.selectedPlayers});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text("Match List"),
-//       ),
-//       body: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           // Display selected players with their details
-//           // You can use DataTable or any other widget based on your preference
-//           // Example:
-//           DataTable(
-//             columns: [
-//               DataColumn(label: Text('Player')),
-//               DataColumn(label: Text('Points')),
-//               DataColumn(label: Text('Credits')),
-//             ],
-//             rows: selectedPlayers.map((player) {
-//               return DataRow(
-//                 cells: [
-//                   DataCell(Text(player['short_name'] ?? '')),
-//                   DataCell(Text("0.0")),
-//                   DataCell(Text("${player['fantasy_player_rating']}")),
-//                 ],
-//               );
-//             }).toList(),
-//           ),
-//           ElevatedButton(
-//             onPressed: () {
-//               Navigator.push(
-//                 context,
-//                 MaterialPageRoute(
-//                   builder: (context) => SelectCaptainsScreen(
-//                     selectedPlayers: selectedPlayers,
-//                   ),
-//                 ),
-//               );
-//             },
-//             child: Text("Select Captains"),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-class MatchListScreen extends StatelessWidget {
+class SelectCaptainScreen extends StatelessWidget {
   final List<Map<String, dynamic>> selectedPlayers;
   final defaultImage = AssetImage('assets/playerImage.png');
 
-  MatchListScreen({required this.selectedPlayers});
+  SelectCaptainScreen({required this.selectedPlayers});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Match List"),
+        title: Text("Select Captain"),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildRoleSection('Wicket-keepers (Pick 2)'),
-                  buildRoleSection('Batsmen (Pick 3-5)'),
-                  buildRoleSection('All-rounders (Pick 1-3)'),
-                  buildRoleSection('Bowlers (Pick 3-5)'),
-                ],
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildRoleSection('Wicket-keepers'),
+                    buildRoleSection('Batsmen'),
+                    buildRoleSection('All-rounders'),
+                    buildRoleSection('Bowlers'),
+                  ],
+                ),
               ),
             ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SelectCaptainsScreen(
-                    selectedPlayers: selectedPlayers,
-                  ),
-                ),
-              );
-            },
-            child: Text("Select Captains"),
-          ),
-        ],
+            buildCaptainButtons(context),
+          ],
+        ),
       ),
     );
   }
@@ -706,28 +643,23 @@ class MatchListScreen extends StatelessWidget {
       children: [
         buildRoleTitle(roleTitle),
         DataTable(
-          columnSpacing: 10.0, // Adjust spacing between columns
+          columnSpacing: 10.0,
           columns: [
             DataColumn(label: Text('Player')),
             DataColumn(label: Text('Points')),
             DataColumn(label: Text('Credits')),
-            DataColumn(label: Text('C')),
-            DataColumn(label: Text('VC')),
-            DataColumn(label: Text('UC')),
-            DataColumn(label: Text('TC')),
+            DataColumn(label: Text('Actions')),
           ],
           rows: selectedPlayers
-              .where((player) => player['playing_role'] == getRoleFromTitle(roleTitle))
+              .where((player) =>
+                  player['playing_role'] == getRoleFromTitle(roleTitle))
               .map((player) {
             return DataRow(
               cells: [
                 DataCell(Text(player['short_name'] ?? '')),
                 DataCell(Text("0.0")),
                 DataCell(Text("${player['fantasy_player_rating']}")),
-                DataCell(buildCircularIcon('C')),
-                DataCell(buildCircularIcon('VC')),
-                DataCell(buildCircularIcon('UC')),
-                DataCell(buildCircularIcon('TC')),
+                DataCell(buildActionIconsRow(player)),
               ],
             );
           }).toList(),
@@ -756,13 +688,25 @@ class MatchListScreen extends StatelessWidget {
     );
   }
 
+  Widget buildActionIconsRow(Map<String, dynamic> player) {
+    return Row(
+      children: [
+        buildCircularIcon('C'),
+        buildCircularIcon('VC'),
+        buildCircularIcon('UC'),
+        buildCircularIcon('TC'),
+      ],
+    );
+  }
+
   Widget buildCircularIcon(String label) {
     return Container(
       width: 30.0,
       height: 30.0,
+      margin: EdgeInsets.only(right: 8.0),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.blue, // You can customize the color
+        color: Colors.blue,
       ),
       child: Center(
         child: Text(
@@ -777,71 +721,52 @@ class MatchListScreen extends StatelessWidget {
   }
 
   String getRoleFromTitle(String title) {
-    // Add logic to return the appropriate role based on the title
     switch (title) {
-      case 'Wicket-keepers (Pick 2)':
+      case 'Wicket-keepers':
         return 'wk';
-      case 'Batsmen (Pick 3-5)':
+      case 'Batsmen':
         return 'bat';
-      case 'All-rounders (Pick 1-3)':
+      case 'All-rounders':
         return 'all';
-      case 'Bowlers (Pick 3-5)':
+      case 'Bowlers':
         return 'bowl';
       default:
         return '';
     }
   }
-}
 
-
-
-
-
-
-class SelectCaptainsScreen extends StatelessWidget {
-  final List<Map<String, dynamic>> selectedPlayers;
-
-  SelectCaptainsScreen({required this.selectedPlayers});
-
-  @override
-  Widget build(BuildContext context) {
-    // Implement your UI to display selected players and select captains
-    // You can use a similar approach as in the MatchListScreen
-    // Example:
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Select Captains"),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget buildCaptainButtons(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          // Display selected players with their details
-          DataTable(
-            columns: [
-              DataColumn(label: Text('Player')),
-              DataColumn(label: Text('Points')),
-              DataColumn(label: Text('Credits')),
-            ],
-            rows: selectedPlayers.map((player) {
-              return DataRow(
-                cells: [
-                  DataCell(Text(player['short_name'] ?? '')),
-                  DataCell(Text("0.0")),
-                  DataCell(Text("${player['fantasy_player_rating']}")),
-                ],
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PreviewScreen(
+                    selectedPlayers: selectedPlayers.toSet(),
+                  ),
+                ),
               );
-            }).toList(),
+            },
+            child: Text("Preview"),
           ),
-          // Implement your logic to select captains here
-          // You can use buttons, checkboxes, or any other UI element
+          ElevatedButton(
+            onPressed: selectedPlayers.length == 11
+                ? () {
+                    print("Save Team Button Pressed");
+                  }
+                : null,
+            child: Text("Save Team"),
+          ),
         ],
       ),
     );
   }
 }
-
-
-
 
 
 
