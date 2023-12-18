@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,6 +19,13 @@ import 'package:tempalteflutter/modules/notification/notificationScreen.dart';
 import 'package:tempalteflutter/utils/avatarImage.dart';
 import 'package:tempalteflutter/validator/validator.dart';
 import 'package:http/http.dart' as http;
+
+
+
+
+
+
+
 
 class HomeScreen extends StatefulWidget {
   final void Function()? menuCallBack;
@@ -41,117 +49,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     _controller = TabController(length: 2, vsync: this);
-   //getBookings();
-   allmatches();
+
+    allmatches();
+
     super.initState();
   }
 
 
+  
+
+
+
+  
+
+
 
 //-----------------------------------------------All matches APi -----------------------------------//
-
-
-
-// Future<http.Response> allmatches() async {
-//   try {
-//     setState(() {
-//       isLoginProsses = true; // Show the loader
-//     });
-
-//     final url = "https://rest.entitysport.com/v2/matches/?status=3&token=4c5b78057cd282704f2a9dd8ea556ee2";
-
-//     final response = await http.get(Uri.parse(url), headers: {
-//       HttpHeaders.contentTypeHeader: "application/json",
-//     });
-
-
-
-//     if (response.statusCode == 200) {
-//       final responseBody = json.decode(response.body);
-//       if (responseBody.containsKey('response') &&
-//           responseBody['response'].containsKey('items')) {
-//         setState(() {
-//           responseData = responseBody['response']['items'];
-//           isLoginProsses = false;
-//         });
-
-//         return response;
-//       } else {
-//         print('No response available in the JSON.');
-//       }
-
-//       setState(() {
-//         responseData = responseBody['items'];
-//         print(responseData);
-//         isLoginProsses = false;
-//       });
-
-//       return response;
-//     } else {
-//       // Handle errors here
-//       setState(() {
-//         isLoginProsses = false;
-//       });
-//       throw Exception('Failed');
-//     }
-//   } catch (error) {
-//     // Handle exceptions or errors here
-//     setState(() {
-//       isLoginProsses = false;
-//     });
-//     print('Error: $error');
-//     throw Exception('Failed');
-//   }
-// }
-
-// Future<void> allmatches() async {
-//   try {
-//     setState(() {
-//       isLoginProsses = true; // Show the loader
-//     });
-
-//     final liveMatchesUrl = "https://rest.entitysport.com/v2/matches/?status=3&token=4c5b78057cd282704f2a9dd8ea556ee2";
-//     final upcomingMatchesUrl = "https://rest.entitysport.com/v2/matches/?status=1&token=4c5b78057cd282704f2a9dd8ea556ee2";
-
-//     final liveMatchesResponse = await http.get(Uri.parse(liveMatchesUrl), headers: {
-//       HttpHeaders.contentTypeHeader: "application/json",
-//     });
-
-//     final upcomingMatchesResponse = await http.get(Uri.parse(upcomingMatchesUrl), headers: {
-//       HttpHeaders.contentTypeHeader: "application/json",
-//     });
-
-//     if (liveMatchesResponse.statusCode == 200 && upcomingMatchesResponse.statusCode == 200) {
-//       final liveMatchesBody = json.decode(liveMatchesResponse.body);
-//       final upcomingMatchesBody = json.decode(upcomingMatchesResponse.body);
-
-//       if (liveMatchesBody.containsKey('response') && liveMatchesBody['response'].containsKey('items') &&
-//           upcomingMatchesBody.containsKey('response') && upcomingMatchesBody['response'].containsKey('items')) {
-//         setState(() {
-//           // Combine live and upcoming matches data
-//           responseData = [...liveMatchesBody['response']['items'], ...upcomingMatchesBody['response']['items']];
-//           isLoginProsses = false;
-//         });
-//       } else {
-//         print('No response available in the JSON for matches.');
-//       }
-//     } else {
-//       // Handle errors here
-//       print('Failed to fetch matches. Status codes: ${liveMatchesResponse.statusCode}, ${upcomingMatchesResponse.statusCode}');
-//       setState(() {
-//         isLoginProsses = false;
-//       });
-//       throw Exception('Failed to fetch matches.');
-//     }
-//   } catch (error) {
-//     // Handle exceptions or errors here
-//     setState(() {
-//       isLoginProsses = false;
-//     });
-//     print('Error: $error');
-//     throw Exception('Failed to fetch matches.');
-//   }
-// }
 
 Future<void> allmatches() async {
   try {
