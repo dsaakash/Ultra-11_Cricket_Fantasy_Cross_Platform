@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:marquee/marquee.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math' as math;
@@ -11,6 +12,18 @@ class Player {
   final String team;
   Player({required this.name, required this.playing11, required this.team});
 }
+
+
+class PlayerRole {
+  Map<String, dynamic> player;
+  String role;
+
+  PlayerRole({required this.player, this.role = ''});
+}
+
+
+
+
 
 class CreateTeamScreen extends StatefulWidget {
   @override
@@ -602,167 +615,206 @@ Widget build(BuildContext context) {
 
 class SelectCaptainScreen extends StatelessWidget {
   final List<Map<String, dynamic>> selectedPlayers;
-  final defaultImage = AssetImage('assets/playerImage.png');
 
   SelectCaptainScreen({required this.selectedPlayers});
 
+  final AssetImage defaultImage = AssetImage('assets/playerImage.png');
+
   @override
   Widget build(BuildContext context) {
+    final Map<String, List<Map<String, dynamic>>> playersByRole = _groupAndSortPlayers(selectedPlayers);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("Select Captain"),
-      ),
-      body: Container(
-        height: MediaQuery.of(context).size.height,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildRoleSection('Wicket-keepers'),
-                    buildRoleSection('Batsmen'),
-                    buildRoleSection('All-rounders'),
-                    buildRoleSection('Bowlers'),
-                  ],
-                ),
+            SizedBox(
+              height: 20.0,
+              child: Marquee(
+                text: 'Select Captain, Vice Captain, Deputy Captain, and Assistant Captain',
+                style: TextStyle(fontSize: 14),
+                scrollAxis: Axis.horizontal,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                blankSpace: 20.0,
+                velocity: 100.0,
+                pauseAfterRound: Duration(seconds: 1),
+                startPadding: 10.0,
+                accelerationDuration: Duration(seconds: 1),
+                accelerationCurve: Curves.linear,
+                decelerationDuration: Duration(milliseconds: 500),
+                decelerationCurve: Curves.easeOut,
               ),
             ),
-            buildCaptainButtons(context),
+            SizedBox(
+              height: 20.0,
+              child: Marquee(
+                text: "C gets 2x points, VC gets 1.5x points",
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 59, 255, 121)),
+                scrollAxis: Axis.horizontal,
+                blankSpace: 20.0,
+                velocity: 100.0,
+                pauseAfterRound: Duration(seconds: 1),
+              ),
+            ),
+            SizedBox(
+              height: 20.0,
+              child: Marquee(
+                text: "DC gets 1x points, AC gets 0.5x points",
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 59, 255, 137)),
+                scrollAxis: Axis.horizontal,
+                blankSpace: 20.0,
+                velocity: 100.0,
+                pauseAfterRound: Duration(seconds: 1),
+              ),
+            ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget buildRoleSection(String roleTitle) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        buildRoleTitle(roleTitle),
-        DataTable(
-          columnSpacing: 10.0,
-          columns: [
-            DataColumn(label: Text('Player')),
-            DataColumn(label: Text('Points')),
-            DataColumn(label: Text('Credits')),
-            DataColumn(label: Text('Actions')),
-          ],
-          rows: selectedPlayers
-              .where((player) =>
-                  player['playing_role'] == getRoleFromTitle(roleTitle))
-              .map((player) {
-            return DataRow(
-              cells: [
-                DataCell(Text(player['short_name'] ?? '')),
-                DataCell(Text("0.0")),
-                DataCell(Text("${player['fantasy_player_rating']}")),
-                DataCell(buildActionIconsRow(player)),
-              ],
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
-  Widget buildRoleTitle(String title) {
-    return Container(
-      padding: EdgeInsets.all(10.0),
-      margin: EdgeInsets.symmetric(vertical: 10.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black),
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: Center(
-        child: Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18.0,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildActionIconsRow(Map<String, dynamic> player) {
-    return Row(
-      children: [
-        buildCircularIcon('C'),
-        buildCircularIcon('VC'),
-        buildCircularIcon('UC'),
-        buildCircularIcon('TC'),
-      ],
-    );
-  }
-
-  Widget buildCircularIcon(String label) {
-    return Container(
-      width: 30.0,
-      height: 30.0,
-      margin: EdgeInsets.only(right: 8.0),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.blue,
-      ),
-      child: Center(
-        child: Text(
-          label,
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-
-  String getRoleFromTitle(String title) {
-    switch (title) {
-      case 'Wicket-keepers':
-        return 'wk';
-      case 'Batsmen':
-        return 'bat';
-      case 'All-rounders':
-        return 'all';
-      case 'Bowlers':
-        return 'bowl';
-      default:
-        return '';
-    }
-  }
-
-  Widget buildCaptainButtons(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      body: ListView(
         children: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PreviewScreen(
-                    selectedPlayers: selectedPlayers.toSet(),
+          ...playersByRole.entries.expand((entry) {
+            return [
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    _getRoleDisplayName(entry.key),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
-              );
-            },
-            child: Text("Preview"),
-          ),
-          ElevatedButton(
-            onPressed: selectedPlayers.length == 11
-                ? () {
-                    print("Save Team Button Pressed");
-                  }
-                : null,
-            child: Text("Save Team"),
+              ),
+              ...entry.value.map((player) => PlayerCard(
+                    player: player,
+                    defaultImage: defaultImage,
+                  )),
+            ];
+          }).toList(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    // Implement preview logic
+                  },
+                  child: const Text("Preview"),
+                  style: ElevatedButton.styleFrom(primary: Colors.green),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Implement save team logic
+                  },
+                  child: const Text("Save Team"),
+                  style: ElevatedButton.styleFrom(primary: Colors.green),
+                ),
+              ],
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Map<String, List<Map<String, dynamic>>> _groupAndSortPlayers(List<Map<String, dynamic>> players) {
+    Map<String, List<Map<String, dynamic>>> playersByRole = {};
+    for (var player in players) {
+      String role = player['playing_role'] ?? 'Unknown';
+      if (!playersByRole.containsKey(role)) {
+        playersByRole[role] = [];
+      }
+      playersByRole[role]!.add(player);
+    }
+
+    const roleOrder = ['wk', 'bat', 'bowl', 'all'];
+    Map<String, List<Map<String, dynamic>>> sortedPlayersByRole = {};
+    for (var role in roleOrder) {
+      if (playersByRole.containsKey(role)) {
+        sortedPlayersByRole[role] = playersByRole[role]!;
+      }
+    }
+    return sortedPlayersByRole;
+  }
+
+  String _getRoleDisplayName(String role) {
+    switch (role) {
+      case 'wk':
+        return 'Wicketkeepers';
+      case 'bat':
+        return 'Batsmen';
+      case 'bowl':
+        return 'Bowlers';
+      case 'all':
+        return 'All-Rounders';
+      default:
+        return 'Other';
+    }
+  }
+}
+
+class PlayerCard extends StatelessWidget {
+  final Map<String, dynamic> player;
+  final ImageProvider defaultImage;
+
+  PlayerCard({required this.player, required this.defaultImage});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Ensure the row items are spaced out
+          children: [
+            CircleAvatar(
+              backgroundImage: player['image_url'] != null && player['image_url'].isNotEmpty
+                  ? NetworkImage(player['image_url'])
+                  : defaultImage,
+              radius: 30,
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(player['short_name'] ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text(player['playing_role'] ?? ''),
+                ],
+              ),
+            ),
+            Text('0.0'),
+            RoleButton(label: 'C'), // Size parameter removed
+            RoleButton(label: 'VC'),
+            RoleButton(label: 'DC'),
+            RoleButton(label: 'AC'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class RoleButton extends StatelessWidget {
+  final String label;
+
+  RoleButton({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        // Implement role assignment logic for C, VC, DC, AC
+      },
+      child: Text(label, style: TextStyle(fontSize: 12)), // Smaller font size
+      style: ElevatedButton.styleFrom(
+        primary: Colors.blue,
+        onPrimary: Colors.white,
+        shape: CircleBorder(),
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Smaller padding
+        minimumSize: Size(30, 30), // Minimum size of the button
       ),
     );
   }
@@ -874,9 +926,6 @@ class PlayerDetailsScreen extends StatelessWidget {
     );
   }
 }
-
-
-
 
 class PreviewScreen extends StatelessWidget {
   final Set<Map<String, dynamic>> selectedPlayers;
