@@ -621,103 +621,164 @@ class SelectCaptainScreen extends StatelessWidget {
   final AssetImage defaultImage = AssetImage('assets/playerImage.png');
 
   @override
-  Widget build(BuildContext context) {
-    final Map<String, List<Map<String, dynamic>>> playersByRole = _groupAndSortPlayers(selectedPlayers);
+Widget build(BuildContext context) {
+  final Map<String, List<Map<String, dynamic>>> playersByRole = _groupAndSortPlayers(selectedPlayers);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              height: 20.0,
-              child: Marquee(
-                text: 'Select Captain, Vice Captain, Deputy Captain, and Assistant Captain',
-                style: TextStyle(fontSize: 14),
-                scrollAxis: Axis.horizontal,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                blankSpace: 20.0,
-                velocity: 100.0,
-                pauseAfterRound: Duration(seconds: 1),
-                startPadding: 10.0,
-                accelerationDuration: Duration(seconds: 1),
-                accelerationCurve: Curves.linear,
-                decelerationDuration: Duration(milliseconds: 500),
-                decelerationCurve: Curves.easeOut,
-              ),
-            ),
-            SizedBox(
-              height: 20.0,
-              child: Marquee(
-                text: "C gets 2x points, VC gets 1.5x points",
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 59, 255, 121)),
-                scrollAxis: Axis.horizontal,
-                blankSpace: 20.0,
-                velocity: 100.0,
-                pauseAfterRound: Duration(seconds: 1),
-              ),
-            ),
-            SizedBox(
-              height: 20.0,
-              child: Marquee(
-                text: "DC gets 1x points, AC gets 0.5x points",
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 59, 255, 137)),
-                scrollAxis: Axis.horizontal,
-                blankSpace: 20.0,
-                velocity: 100.0,
-                pauseAfterRound: Duration(seconds: 1),
-              ),
-            ),
-          ],
+  return Scaffold(
+    appBar: AppBar(
+      title: _buildAppBarTitle(),
+    ),
+    body: Column(
+      children: [
+        Flexible(
+          child: SafeArea(
+            child: _buildPlayerListView(playersByRole),
+          ),
+        ),
+      ],
+    ),
+    // bottomNavigationBar: _buildBottomNavigationBar(),
+    floatingActionButton: _buildFloatingActionButton(),
+    floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+  );
+}
+
+Widget _buildFloatingActionButton() {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 60.0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        FloatingActionButton.extended(
+          onPressed: () {
+            // Implement preview logic
+          },
+          label: const Text("Preview"),
+          icon: Icon(Icons.preview),
+          backgroundColor: Colors.green,
+        ),
+        FloatingActionButton.extended(
+          onPressed: () {
+            // Implement save team logic
+          },
+          label: const Text("Save Team"),
+          icon: Icon(Icons.save),
+          backgroundColor: Colors.green,
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildAppBarTitle() {
+  return Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    crossAxisAlignment: CrossAxisAlignment.center,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      SizedBox(
+        height: 20.0,
+        child: Marquee(
+          text: 'Select Captain, Vice Captain, Deputy Captain, and Assistant Captain',
+          style: TextStyle(fontSize: 14),
+          scrollAxis: Axis.horizontal,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          blankSpace: 20.0,
+          velocity: 100.0,
+          pauseAfterRound: Duration(seconds: 10),
+          startPadding: 10.0,
+          accelerationDuration: Duration(seconds: 1),
+          accelerationCurve: Curves.linear,
+          decelerationDuration: Duration(milliseconds: 500),
+          decelerationCurve: Curves.easeOut,
         ),
       ),
-      body: ListView(
-        children: [
-          ...playersByRole.entries.expand((entry) {
-            return [
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    _getRoleDisplayName(entry.key),
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
+      SizedBox(
+        height: 20.0,
+        child: Marquee(
+          text: "C gets 2x points, VC gets 1.5x points",
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 59, 255, 121)),
+          scrollAxis: Axis.horizontal,
+          blankSpace: 20.0,
+          velocity: 100.0,
+          pauseAfterRound: Duration(seconds: 12),
+        ),
+      ),
+      SizedBox(
+        height: 20.0,
+        child: Marquee(
+          text: "DC gets 1x points, AC gets 0.5x points",
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 59, 255, 137)),
+          scrollAxis: Axis.horizontal,
+          blankSpace: 20.0,
+          velocity: 100.0,
+          pauseAfterRound: Duration(seconds: 14),
+        ),
+      ),
+    ],
+  );
+}
+
+Widget _buildPlayerListView(Map<String, List<Map<String, dynamic>>> playersByRole) {
+  return Expanded(
+    child: SingleChildScrollView(
+      child: Column(
+        children: playersByRole.entries.map((entry) {
+          String role = entry.key;
+          List<Map<String, dynamic>> players = entry.value;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 0.0),
+                child: Text(
+                  _getRoleDisplayName(role),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
-              ...entry.value.map((player) => PlayerCard(
-                    player: player,
-                    defaultImage: defaultImage,
-                  )),
-            ];
-          }).toList(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    // Implement preview logic
-                  },
-                  child: const Text("Preview"),
-                  style: ElevatedButton.styleFrom(primary: Colors.green),
+              ...players.map((player) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), 
+                child: PlayerCard(
+                  player: player,
+                  defaultImage: defaultImage,
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    // Implement save team logic
-                  },
-                  child: const Text("Save Team"),
-                  style: ElevatedButton.styleFrom(primary: Colors.green),
-                ),
-              ],
-            ),
+              )).toList(),
+            ],
+          );
+        }).toList(),
+      ),
+    ),
+  );
+}
+
+
+Widget _buildBottomNavigationBar() {
+  return BottomAppBar(
+    child: Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 8.0,),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          ElevatedButton(
+            onPressed: () {
+              // Implement preview logic
+            },
+            child: const Text("Preview"),
+            style: ElevatedButton.styleFrom(primary: Colors.green),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              // Implement save team logic
+            },
+            child: const Text("Save Team"),
+            style: ElevatedButton.styleFrom(primary: Colors.green),
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Map<String, List<Map<String, dynamic>>> _groupAndSortPlayers(List<Map<String, dynamic>> players) {
     Map<String, List<Map<String, dynamic>>> playersByRole = {};
@@ -728,6 +789,8 @@ class SelectCaptainScreen extends StatelessWidget {
       }
       playersByRole[role]!.add(player);
     }
+
+    // Sort the players by their roles
 
     const roleOrder = ['wk', 'bat', 'bowl', 'all'];
     Map<String, List<Map<String, dynamic>>> sortedPlayersByRole = {};
@@ -768,7 +831,7 @@ class PlayerCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Ensure the row items are spaced out
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             CircleAvatar(
               backgroundImage: player['image_url'] != null && player['image_url'].isNotEmpty
@@ -786,7 +849,7 @@ class PlayerCard extends StatelessWidget {
               ),
             ),
             Text('0.0'),
-            RoleButton(label: 'C'), // Size parameter removed
+            RoleButton(label: 'C'),
             RoleButton(label: 'VC'),
             RoleButton(label: 'DC'),
             RoleButton(label: 'AC'),
@@ -808,13 +871,13 @@ class RoleButton extends StatelessWidget {
       onPressed: () {
         // Implement role assignment logic for C, VC, DC, AC
       },
-      child: Text(label, style: TextStyle(fontSize: 12)), // Smaller font size
+      child: Text(label, style: TextStyle(fontSize: 12)),
       style: ElevatedButton.styleFrom(
         primary: Colors.blue,
         onPrimary: Colors.white,
         shape: CircleBorder(),
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Smaller padding
-        minimumSize: Size(30, 30), // Minimum size of the button
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        minimumSize: Size(30, 30),
       ),
     );
   }
