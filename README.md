@@ -22,7 +22,7 @@ Contributions to the Ultra-11 Cricket Fantasy app are welcome. Please read our c
 This project is licensed under the [LICENSE NAME] - see the LICENSE.md file for details.
 
 ## Contact
-For any queries or feedback, please contact us at [contact@email.com].
+For any queries or feedback, please contact us at [savantaakash322@gmail.com].
 
 ## Acknowledgments
 - Flutter Community
