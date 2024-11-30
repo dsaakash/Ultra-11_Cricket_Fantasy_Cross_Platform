@@ -24,7 +24,5 @@ To begin using the Ultra-11 Cricket Fantasy app:
 ## Contribution
 Contributions are welcome! Please read our Contribution Guide for details on how to contribute.
 
-## License
-This project is licensed under the MIT License 
 
 
